@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
@@ -7,8 +8,9 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Award, Coins, HeartCrack } from 'lucide-react';
 
 // Game Constants
-const GAME_WIDTH = 800;
-const GAME_HEIGHT = 600;
+const GAME_ASPECT_RATIO = 4 / 3;
+const BASE_GAME_WIDTH = 800;
+const BASE_GAME_HEIGHT = 600;
 const GRAVITY = 0.5;
 const PLAYER_SPEED = 5;
 const JUMP_STRENGTH = 12;
@@ -88,6 +90,9 @@ export default function PankhusQuest() {
   const [enemies, setEnemies] = useState<Enemy[]>(initialLevel.enemies);
   const [score, setScore] = useState(0);
   const [cameraX, setCameraX] = useState(0);
+  const [gameDimensions, setGameDimensions] = useState({ width: BASE_GAME_WIDTH, height: BASE_GAME_HEIGHT });
+  
+  const gameContainerRef = useRef<HTMLDivElement>(null);
 
   const keysPressed = useRef<Record<string, boolean>>({});
   const gameLoopRef = useRef<number>();
@@ -101,6 +106,23 @@ export default function PankhusQuest() {
     setGameState('playing');
   }, []);
 
+  useEffect(() => {
+    const handleResize = () => {
+      if (gameContainerRef.current) {
+        const { width } = gameContainerRef.current.getBoundingClientRect();
+        setGameDimensions({
+            width: width,
+            height: width / GAME_ASPECT_RATIO,
+        });
+      }
+    };
+    
+    window.addEventListener('resize', handleResize);
+    handleResize();
+
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+  
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => { keysPressed.current[e.key] = true; };
     const handleKeyUp = (e: KeyboardEvent) => { keysPressed.current[e.key] = false; };
@@ -154,7 +176,7 @@ export default function PankhusQuest() {
       if (newX < 0) newX = 0;
 
       // Fall off world
-      if (newY > GAME_HEIGHT) {
+      if (newY > BASE_GAME_HEIGHT) {
         setGameState('gameOver');
       }
 
@@ -198,13 +220,13 @@ export default function PankhusQuest() {
 
     // Update camera
     setCameraX(prev => {
-        const target = player.x - GAME_WIDTH / 2;
+        const target = player.x - (gameDimensions.width / 2) * (BASE_GAME_WIDTH / gameDimensions.width)
         const newCamX = prev + (target - prev) * 0.1;
         return Math.max(0, newCamX);
     });
 
     gameLoopRef.current = requestAnimationFrame(gameLoop);
-  }, [gameState, player.x, enemies]);
+  }, [gameState, player.x, enemies, gameDimensions.width]);
 
   useEffect(() => {
     if (gameState === 'playing') {
@@ -226,13 +248,17 @@ export default function PankhusQuest() {
     );
   };
 
+  const scale = gameDimensions.width / BASE_GAME_WIDTH;
+
   return (
-    <div className="flex flex-col items-center justify-center font-headline bg-background text-foreground p-4">
+    <div className="flex flex-col items-center justify-center font-headline bg-background text-foreground p-4 w-screen h-screen">
         <h1 className="text-4xl md:text-6xl font-bold mb-4">Pankhu's Quest</h1>
         <div 
-          style={{ width: GAME_WIDTH, height: GAME_HEIGHT }} 
+          ref={gameContainerRef}
+          style={{ width: '100%', maxWidth: BASE_GAME_WIDTH, aspectRatio: `${BASE_GAME_WIDTH}/${BASE_GAME_HEIGHT}` }} 
           className="relative overflow-hidden bg-primary rounded-lg shadow-2xl border-4 border-foreground"
         >
+          <div style={{ transform: `scale(${scale})`, transformOrigin: 'top left', width: BASE_GAME_WIDTH, height: BASE_GAME_HEIGHT }}>
             <AnimatePresence>
                 {gameState !== 'playing' && (
                     <motion.div 
@@ -240,6 +266,7 @@ export default function PankhusQuest() {
                       animate={{ opacity: 1 }}
                       exit={{ opacity: 0 }}
                       className="absolute inset-0 bg-black/70 z-20 flex items-center justify-center"
+                      style={{transform: `scale(${1/scale})`, transformOrigin: 'top left'}}
                     >
                       <Card className="text-center w-80">
                         <CardHeader>
@@ -306,17 +333,23 @@ export default function PankhusQuest() {
             </div>
 
             {/* Game World */}
-            <div className="relative w-full h-full">
+            <div className="relative w-full h-full" style={{ transform: `translateX(-${cameraX}px)`}}>
                 {/* Player */}
                 <div 
-                  className="absolute transition-transform duration-100"
+                  className="absolute"
                   style={{ 
-                    transform: `translate(${player.x - cameraX}px, ${player.y}px) scaleX(${player.direction === 'right' ? 1 : -1})`,
+                    transform: `translate(${player.x}px, ${player.y}px)`,
                     width: player.width, 
                     height: player.height,
                   }}
                 >
-                    <div style={{width: '100%', height: '100%', position: 'relative'}}>
+                    <div 
+                      className="w-full h-full" 
+                      style={{transform: `scaleX(${player.direction === 'right' ? 1 : -1})`}}
+                    >
+                        <div className="absolute -top-5 left-1/2 -translate-x-1/2 bg-black/50 text-white text-xs px-2 py-1 rounded">
+                            Pankhu
+                        </div>
                         {/* Head */}
                         <div className="absolute" style={{ top: 0, left: '5px', width: '20px', height: '20px', background: '#FFDAB9', borderRadius: '4px' }} /> 
                         {/* Dress */}
@@ -326,25 +359,25 @@ export default function PankhusQuest() {
 
                 {/* Platforms */}
                 {initialLevel.platforms.map(p => (
-                  <div key={p.id} className="absolute bg-[#A97C50] border-b-4 border-black/20" style={{ left: p.x - cameraX, top: p.y, width: p.width, height: p.height }} />
+                  <div key={p.id} className="absolute bg-[#A97C50] border-b-4 border-black/20" style={{ left: p.x, top: p.y, width: p.width, height: p.height }} />
                 ))}
 
                 {/* Coins */}
                 {coins.map(c => !c.collected && (
-                  <div key={c.id} className="absolute coin-spin" style={{ left: c.x - cameraX, top: c.y, width: c.width, height: c.height, perspective: '1000px' }}>
+                  <div key={c.id} className="absolute coin-spin" style={{ left: c.x, top: c.y, width: c.width, height: c.height, perspective: '1000px' }}>
                      <div className="w-full h-full bg-yellow-400 rounded-full border-2 border-yellow-600 shadow-md"/>
                   </div>
                 ))}
                 
                 {/* Enemies */}
                 {enemies.map(e => (
-                   <div key={e.id} className="absolute" style={{ left: e.x - cameraX, top: e.y, width: e.width, height: e.height }}>
+                   <div key={e.id} className="absolute" style={{ left: e.x, top: e.y, width: e.width, height: e.height }}>
                         <div className="w-full h-full bg-red-600 rounded-md border-2 border-red-800 animate-pulse" />
                    </div>
                 ))}
 
                 {/* Prince */}
-                <div className="absolute" style={{ left: initialLevel.prince.x - cameraX, top: initialLevel.prince.y, width: initialLevel.prince.width, height: initialLevel.prince.height }}>
+                <div className="absolute" style={{ left: initialLevel.prince.x, top: initialLevel.prince.y, width: initialLevel.prince.width, height: initialLevel.prince.height }}>
                     {/* Crown */}
                     <div className="absolute" style={{ top: 0, left: '5px', width: '30px', height: '15px', background: 'gold', clipPath: 'polygon(0 100%, 20% 0, 50% 50%, 80% 0, 100% 100%)' }} />
                     {/* Head */}
@@ -354,6 +387,9 @@ export default function PankhusQuest() {
                 </div>
             </div>
         </div>
+        </div>
     </div>
   );
 }
+
+    
