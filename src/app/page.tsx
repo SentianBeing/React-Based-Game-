@@ -5,7 +5,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Award, Coins, HeartCrack, ArrowLeft, ArrowRight, ArrowUp } from 'lucide-react';
+import { Award, Coins, HeartCrack, ArrowLeft, ArrowRight, ArrowUp, Heart } from 'lucide-react';
 import Image, { StaticImageData } from 'next/image';
 
 // Import images
@@ -26,7 +26,7 @@ const JUMP_STRENGTH = 12;
 const WALK_ANIMATION_SPEED = 8; // Lower is faster
 
 // Types
-type GameState = 'start' | 'playing' | 'gameOver' | 'win';
+type GameState = 'start' | 'playing' | 'gameOver' | 'win' | 'ending';
 
 interface GameObject {
   id: number;
@@ -56,6 +56,14 @@ interface Coin extends GameObject {
 }
 
 interface Platform extends GameObject {}
+
+interface HeartParticle {
+    id: number;
+    x: number;
+    y: number;
+    vy: number;
+    opacity: number;
+}
 
 // Level Data, adjusted for new world size
 const initialLevel = {
@@ -116,12 +124,27 @@ const PrinceSprite = () => {
     );
 }
 
+const FlyingHeart = ({ particle }: { particle: HeartParticle }) => (
+    <div
+      className="absolute"
+      style={{
+        left: particle.x,
+        top: particle.y,
+        opacity: particle.opacity,
+        transition: 'opacity 0.5s ease-out',
+      }}
+    >
+      <Heart className="w-6 h-6 text-red-500" fill="currentColor" />
+    </div>
+  );
+
 // Game Component
 export default function PankhusQuest() {
   const [gameState, setGameState] = useState<GameState>('start');
   const [player, setPlayer] = useState<Player>(createInitialPlayer);
   const [coins, setCoins] = useState<Coin[]>(initialLevel.coins);
   const [enemies, setEnemies] = useState<Enemy[]>(initialLevel.enemies);
+  const [hearts, setHearts] = useState<HeartParticle[]>([]);
   const [score, setScore] = useState(0);
   const [cameraX, setCameraX] = useState(0);
   const [gameDimensions, setGameDimensions] = useState({ width: BASE_GAME_WIDTH, height: BASE_GAME_HEIGHT });
@@ -139,6 +162,7 @@ export default function PankhusQuest() {
     setPlayer(createInitialPlayer());
     setCoins(initialLevel.coins.map(c => ({ ...c, collected: false })));
     setEnemies(initialLevel.enemies);
+    setHearts([]);
     setScore(0);
     setCameraX(0);
     setGameState('playing');
@@ -218,136 +242,170 @@ export default function PankhusQuest() {
      e.preventDefault();
      keysPressed.current[key] = false;
   }
+
+  const triggerWinSequence = () => {
+    setGameState('ending');
+    const newHearts: HeartParticle[] = [];
+    for (let i = 0; i < 15; i++) {
+        newHearts.push({
+            id: i,
+            x: initialLevel.prince.x - 10 + Math.random() * 20,
+            y: initialLevel.prince.y,
+            vy: -2 - Math.random() * 3,
+            opacity: 1,
+        });
+    }
+    setHearts(newHearts);
+
+    setTimeout(() => {
+        setGameState('win');
+    }, 2500); // Duration of the heart animation
+  };
   
   const gameLoop = useCallback(() => {
-    if (gameState !== 'playing') return;
+    if (gameState !== 'playing' && gameState !== 'ending') return;
 
-    setPlayer(p => {
-      let newVx = 0;
-      let newDirection = p.direction;
-      let isWalking = false;
+    if (gameState === 'playing') {
+        setPlayer(p => {
+        let newVx = 0;
+        let newDirection = p.direction;
+        let isWalking = false;
 
-      if (keysPressed.current['ArrowLeft'] || keysPressed.current['a']) {
-        newVx = -PLAYER_SPEED;
-        newDirection = 'left';
-        isWalking = true;
-      }
-      if (keysPressed.current['ArrowRight'] || keysPressed.current['d']) {
-        newVx = PLAYER_SPEED;
-        newDirection = 'right';
-        isWalking = true;
-      }
-
-      let newVy = p.vy + GRAVITY;
-      if (p.onGround && (keysPressed.current['ArrowUp'] || keysPressed.current['w'] || keysPressed.current[' '])) {
-        newVy = -JUMP_STRENGTH;
-      }
-      
-      let newX = p.x + newVx;
-      let newY = p.y + newVy;
-      let onGround = false;
-      let newWalkFrame = p.walkFrame;
-
-      // Update walk animation frame
-      if (isWalking && p.onGround) {
-        walkFrameCounter.current += 1;
-        if(walkFrameCounter.current > WALK_ANIMATION_SPEED) {
-             newWalkFrame = (p.walkFrame + 1) % 2;
-             walkFrameCounter.current = 0;
+        if (keysPressed.current['ArrowLeft'] || keysPressed.current['a']) {
+            newVx = -PLAYER_SPEED;
+            newDirection = 'left';
+            isWalking = true;
         }
-      } else {
-        newWalkFrame = 0;
-        walkFrameCounter.current = 0;
-      }
-
-      // Collision with platforms
-      initialLevel.platforms.forEach(platform => {
-        // Check for vertical collision (landing on top)
-        if (
-          p.x < platform.x + platform.width &&
-          p.x + p.width > platform.x &&
-          p.y + p.height <= platform.y &&
-          newY + p.height >= platform.y
-        ) {
-          newY = platform.y - p.height;
-          newVy = 0;
-          onGround = true;
+        if (keysPressed.current['ArrowRight'] || keysPressed.current['d']) {
+            newVx = PLAYER_SPEED;
+            newDirection = 'right';
+            isWalking = true;
         }
 
-        // Check for horizontal collision
-         if (
-            newX < platform.x + platform.width &&
-            newX + p.width > platform.x &&
-            p.y < platform.y + platform.height &&
-            p.y + p.height > platform.y &&
-             !onGround // prevent sticking to walls when on ground
-        ) {
-            // This is a simplified horizontal collision, might need improvement
-            const playerBottom = p.y + p.height;
-            const platformTop = platform.y;
-            if(playerBottom > platformTop) { // only if not on top
-                if (newVx > 0) { // Moving right
-                    newX = platform.x - p.width;
-                } else if (newVx < 0) { // Moving left
-                    newX = platform.x + platform.width;
+        let newVy = p.vy + GRAVITY;
+        if (p.onGround && (keysPressed.current['ArrowUp'] || keysPressed.current['w'] || keysPressed.current[' '])) {
+            newVy = -JUMP_STRENGTH;
+        }
+        
+        let newX = p.x + newVx;
+        let newY = p.y + newVy;
+        let onGround = false;
+        let newWalkFrame = p.walkFrame;
+
+        // Update walk animation frame
+        if (isWalking && p.onGround) {
+            walkFrameCounter.current += 1;
+            if(walkFrameCounter.current > WALK_ANIMATION_SPEED) {
+                newWalkFrame = (p.walkFrame + 1) % 2;
+                walkFrameCounter.current = 0;
+            }
+        } else {
+            newWalkFrame = 0;
+            walkFrameCounter.current = 0;
+        }
+
+        // Collision with platforms
+        initialLevel.platforms.forEach(platform => {
+            // Check for vertical collision (landing on top)
+            if (
+            p.x < platform.x + platform.width &&
+            p.x + p.width > platform.x &&
+            p.y + p.height <= platform.y &&
+            newY + p.height >= platform.y
+            ) {
+            newY = platform.y - p.height;
+            newVy = 0;
+            onGround = true;
+            }
+
+            // Check for horizontal collision
+            if (
+                newX < platform.x + platform.width &&
+                newX + p.width > platform.x &&
+                p.y < platform.y + platform.height &&
+                p.y + p.height > platform.y &&
+                !onGround // prevent sticking to walls when on ground
+            ) {
+                // This is a simplified horizontal collision, might need improvement
+                const playerBottom = p.y + p.height;
+                const platformTop = platform.y;
+                if(playerBottom > platformTop) { // only if not on top
+                    if (newVx > 0) { // Moving right
+                        newX = platform.x - p.width;
+                    } else if (newVx < 0) { // Moving left
+                        newX = platform.x + platform.width;
+                    }
                 }
             }
+        });
+        
+        // World bounds
+        if (newX < 0) newX = 0;
+
+        // Fall off world
+        if (newY > BASE_GAME_HEIGHT) {
+            setGameState('gameOver');
         }
-      });
-      
-      // World bounds
-      if (newX < 0) newX = 0;
 
-      // Fall off world
-      if (newY > BASE_GAME_HEIGHT) {
-        setGameState('gameOver');
-      }
+        return { ...p, x: newX, y: newY, vx: newVx, vy: newVy, onGround, direction: newDirection, isWalking, walkFrame: newWalkFrame };
+        });
 
-      return { ...p, x: newX, y: newY, vx: newVx, vy: newVy, onGround, direction: newDirection, isWalking, walkFrame: newWalkFrame };
-    });
-
-    // Enemy logic
-    setEnemies(prevEnemies => prevEnemies.map(enemy => {
-        let newVx = enemy.vx;
-        if (enemy.x > enemy.initialX + enemy.range || enemy.x < enemy.initialX) {
-          newVx = -enemy.vx;
-        }
-        return { ...enemy, x: enemy.x + newVx, vx: newVx };
-    }));
-
-    // Collision checks
-    setPlayer(p => {
-      // Coins
-      setCoins(prevCoins => prevCoins.map(coin => {
-          if (!coin.collected && checkCollision(p, coin)) {
-              setScore(s => s + 10);
-              return { ...coin, collected: true };
-          }
-          return coin;
-      }));
-
-      // Enemies
-      enemies.forEach(enemy => {
-        if (checkCollision(p, enemy)) {
-           // Check for stomp
-           if (p.vy > 0 && p.y + p.height < enemy.y + enemy.height) {
-                setEnemies(prev => prev.filter(e => e.id !== enemy.id));
-                setScore(s => s + 50);
-                // Make player bounce
-                 setPlayer(currentPlayer => ({...currentPlayer, vy: -JUMP_STRENGTH / 2}));
-            } else {
-                setGameState('gameOver');
+        // Enemy logic
+        setEnemies(prevEnemies => prevEnemies.map(enemy => {
+            let newVx = enemy.vx;
+            if (enemy.x > enemy.initialX + enemy.range || enemy.x < enemy.initialX) {
+            newVx = -enemy.vx;
             }
+            return { ...enemy, x: enemy.x + newVx, vx: newVx };
+        }));
+
+        // Collision checks
+        setPlayer(p => {
+        // Coins
+        setCoins(prevCoins => prevCoins.map(coin => {
+            if (!coin.collected && checkCollision(p, coin)) {
+                setScore(s => s + 10);
+                return { ...coin, collected: true };
+            }
+            return coin;
+        }));
+
+        // Enemies
+        enemies.forEach(enemy => {
+            if (checkCollision(p, enemy)) {
+            // Check for stomp
+            if (p.vy > 0 && p.y + p.height < enemy.y + enemy.height) {
+                    setEnemies(prev => prev.filter(e => e.id !== enemy.id));
+                    setScore(s => s + 50);
+                    // Make player bounce
+                    setPlayer(currentPlayer => ({...currentPlayer, vy: -JUMP_STRENGTH / 2}));
+                } else {
+                    setGameState('gameOver');
+                }
+            }
+        });
+
+        // Prince
+        if (checkCollision(p, initialLevel.prince)) {
+            triggerWinSequence();
         }
-      });
 
-      // Prince
-      if (checkCollision(p, initialLevel.prince)) {
-        setGameState('win');
-      }
+        return p;
+        });
+    }
 
-      return p;
-    });
+    if (gameState === 'ending') {
+        setHearts(currentHearts =>
+          currentHearts
+            .map(h => ({
+              ...h,
+              y: h.y + h.vy,
+              vy: h.vy + 0.1, // A little gravity for the hearts
+              opacity: h.opacity - 0.01,
+            }))
+            .filter(h => h.opacity > 0)
+        );
+    }
 
     // Update camera
     setCameraX(prev => {
@@ -360,7 +418,7 @@ export default function PankhusQuest() {
   }, [gameState, player.x, enemies, gameDimensions.width, scale]);
 
   useEffect(() => {
-    if (gameState === 'playing') {
+    if (gameState === 'playing' || gameState === 'ending') {
       gameLoopRef.current = requestAnimationFrame(gameLoop);
     }
     return () => {
@@ -394,7 +452,7 @@ export default function PankhusQuest() {
           >
             <div style={{ transform: `scale(${scale})`, transformOrigin: 'top left', width: BASE_GAME_WIDTH, height: BASE_GAME_HEIGHT }}>
                 <AnimatePresence>
-                    {gameState !== 'playing' && (
+                    {gameState !== 'playing' && gameState !== 'ending' && (
                          <motion.div
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
@@ -470,24 +528,27 @@ export default function PankhusQuest() {
                 {/* Game World */}
                 <div className="relative w-full h-full" style={{ transform: `translateX(-${cameraX}px)`}}>
                     {/* Player */}
-                    <div 
-                      className="absolute"
-                      style={{ 
-                        transform: `translate(${player.x}px, ${player.y}px)`,
-                        width: player.width, 
-                        height: player.height,
-                      }}
-                    >
+                    { gameState !== 'ending' && (
                         <div 
-                          className="w-full h-full relative" 
-                          style={{transform: `scaleX(${player.direction === 'right' ? 1 : -1})`}}
+                        className="absolute"
+                        style={{ 
+                            transform: `translate(${player.x}px, ${player.y}px)`,
+                            width: player.width, 
+                            height: player.height,
+                        }}
                         >
-                           <div className="absolute -top-5 left-1/2 -translate-x-1/2 bg-black/50 text-white text-xs px-2 py-1 rounded" style={{ transform: `translateX(-50%) scaleX(${player.direction === 'right' ? 1 : -1})` }}>
-                                Pankhu
+                            <div 
+                            className="w-full h-full relative" 
+                            style={{transform: `scaleX(${player.direction === 'right' ? 1 : -1})`}}
+                            >
+                            <div className="absolute -top-5 left-1/2 -translate-x-1/2 bg-black/50 text-white text-xs px-2 py-1 rounded" style={{ transform: `translateX(-50%) scaleX(${player.direction === 'right' ? 1 : -1})` }}>
+                                    Pankhu
+                                </div>
+                            <PlayerSprite isWalking={player.isWalking} onGround={player.onGround} walkFrame={player.walkFrame} />
                             </div>
-                           <PlayerSprite isWalking={player.isWalking} onGround={player.onGround} walkFrame={player.walkFrame} />
                         </div>
-                    </div>
+                    )}
+
 
                     {/* Platforms */}
                     {initialLevel.platforms.map(p => (
@@ -515,6 +576,11 @@ export default function PankhusQuest() {
                          </div>
                         <PrinceSprite />
                     </div>
+
+                    {/* Hearts */}
+                    {hearts.map(h => (
+                        <FlyingHeart key={h.id} particle={h} />
+                    ))}
                 </div>
             </div>
           </div>
@@ -564,3 +630,5 @@ export default function PankhusQuest() {
     </main>
   );
 }
+
+    
