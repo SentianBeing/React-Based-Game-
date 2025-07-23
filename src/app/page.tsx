@@ -297,25 +297,24 @@ export default function PankhusQuest() {
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
                             className="absolute inset-0 z-20 flex items-center justify-center"
-                            style={{transform: `scale(${1/scale})`, transformOrigin: 'top left'}}
                         >
                            <div className="absolute inset-0 bg-black/70 flex items-center justify-center p-4">
-                              <Card className="text-center w-full max-w-sm">
+                              <Card className="text-center w-full max-w-xs sm:max-w-sm">
                                 <CardHeader>
-                                  <CardTitle className="text-3xl">
+                                  <CardTitle className="text-2xl sm:text-3xl">
                                     {gameState === 'start' && "Pankhu's Quest"}
                                     {gameState === 'gameOver' && "Game Over"}
                                     {gameState === 'win' && "You Win!"}
                                   </CardTitle>
                                 </CardHeader>
-                                <CardContent className="space-y-4">
-                                  {gameState === 'start' && <p>Help Princess Pankhu rescue Prince Karthik!</p>}
-                                  {gameState === 'gameOver' && <HeartCrack className="w-16 h-16 mx-auto text-destructive" />}
+                                <CardContent className="space-y-3 sm:space-y-4">
+                                  {gameState === 'start' && <p className="text-sm sm:text-base">Help Princess Pankhu rescue Prince Karthik!</p>}
+                                  {gameState === 'gameOver' && <HeartCrack className="w-12 h-12 sm:w-16 sm:h-16 mx-auto text-destructive" />}
                                   {gameState === 'win' && (
                                     <div className="flex flex-col items-center gap-2">
-                                        <Award className="w-16 h-16 mx-auto text-yellow-400" />
-                                        <p>You rescued Prince Karthik!</p>
-                                        <p className="text-2xl font-bold">Final Score: {score}</p>
+                                        <Award className="w-12 h-12 sm:w-16 sm:h-16 mx-auto text-yellow-400" />
+                                        <p className="text-sm sm:text-base">You rescued Prince Karthik!</p>
+                                        <p className="text-xl sm:text-2xl font-bold">Final Score: {score}</p>
                                     </div>
                                   )}
 
@@ -324,7 +323,7 @@ export default function PankhusQuest() {
                                   </Button>
 
                                   {gameState === 'start' && (
-                                    <div className="text-sm text-muted-foreground pt-4">
+                                    <div className="text-xs sm:text-sm text-muted-foreground pt-2 sm:pt-4">
                                         <p><strong>Controls:</strong></p>
                                         <p>Arrow Keys / WASD to Move</p>
                                         <p>Space / Up Arrow / W to Jump</p>
@@ -358,9 +357,9 @@ export default function PankhusQuest() {
                 />
 
                 {/* HUD */}
-                <div className="absolute top-4 left-4 z-10" style={{transform: `scale(${1/scale})`, transformOrigin: 'top left'}}>
-                    <div className="flex items-center gap-2 bg-black/50 text-white p-2 rounded-lg font-bold text-xl">
-                       <Coins className="text-yellow-400" />
+                <div className="absolute top-2 left-2 sm:top-4 sm:left-4 z-10" style={{transform: `scale(${1/scale})`, transformOrigin: 'top left'}}>
+                    <div className="flex items-center gap-2 bg-black/50 text-white p-2 rounded-lg font-bold text-lg sm:text-xl">
+                       <Coins className="text-yellow-400 w-5 h-5 sm:w-6 sm:h-6" />
                        <span>{score}</span>
                     </div>
                 </div>
@@ -423,49 +422,48 @@ export default function PankhusQuest() {
                     </div>
                 </div>
             </div>
+            
+            {/* Mobile Controls */}
+            {isMobile && gameState === 'playing' && (
+                <div className="absolute bottom-4 left-0 right-0 flex justify-center items-end z-20 pointer-events-none">
+                    <div className="flex items-end gap-4 pointer-events-auto">
+                        <Button 
+                            size="lg" 
+                            className="w-16 h-16 rounded-full opacity-80"
+                            onTouchStart={() => handleTouchStart('ArrowLeft')}
+                            onTouchEnd={() => handleTouchEnd('ArrowLeft')}
+                            onMouseDown={() => handleTouchStart('ArrowLeft')}
+                            onMouseUp={() => handleTouchEnd('ArrowLeft')}
+                        >
+                            <ArrowLeft className="w-8 h-8"/>
+                        </Button>
+                        <Button 
+                            size="lg" 
+                            className="w-20 h-20 rounded-full opacity-80"
+                            onTouchStart={() => handleTouchStart(' ')}
+                            onTouchEnd={() => handleTouchEnd(' ')}
+                            onMouseDown={() => handleTouchStart(' ')}
+                            onMouseUp={() => handleTouchEnd(' ')}
+                        >
+                            <ArrowUp className="w-10 h-10" />
+                        </Button>
+                        <Button 
+                            size="lg" 
+                            className="w-16 h-16 rounded-full opacity-80"
+                            onTouchStart={() => handleTouchStart('ArrowRight')}
+                            onTouchEnd={() => handleTouchEnd('ArrowRight')}
+                            onMouseDown={() => handleTouchStart('ArrowRight')}
+                            onMouseUp={() => handleTouchEnd('ArrowRight')}
+                        >
+                            <ArrowRight className="w-8 h-8"/>
+                        </Button>
+                    </div>
+                </div>
+            )}
           </div>
         </div>
-
-        {/* Mobile Controls */}
-        {isMobile && gameState === 'playing' && (
-            <div className="absolute bottom-4 left-4 right-4 flex justify-between items-center z-20 pointer-events-none">
-                <div className="flex gap-2 pointer-events-auto">
-                    <Button 
-                        size="lg" 
-                        className="w-16 h-16 rounded-full opacity-80"
-                        onTouchStart={() => handleTouchStart('ArrowLeft')}
-                        onTouchEnd={() => handleTouchEnd('ArrowLeft')}
-                        onMouseDown={() => handleTouchStart('ArrowLeft')}
-                        onMouseUp={() => handleTouchEnd('ArrowLeft')}
-                    >
-                        <ArrowLeft className="w-8 h-8"/>
-                    </Button>
-                    <Button 
-                        size="lg" 
-                        className="w-16 h-16 rounded-full opacity-80"
-                        onTouchStart={() => handleTouchStart('ArrowRight')}
-                        onTouchEnd={() => handleTouchEnd('ArrowRight')}
-                        onMouseDown={() => handleTouchStart('ArrowRight')}
-                        onMouseUp={() => handleTouchEnd('ArrowRight')}
-                    >
-                        <ArrowRight className="w-8 h-8"/>
-                    </Button>
-                </div>
-                <div className="pointer-events-auto">
-                    <Button 
-                        size="lg" 
-                        className="w-20 h-20 rounded-full opacity-80"
-                        onTouchStart={() => handleTouchStart(' ')}
-                        onTouchEnd={() => handleTouchEnd(' ')}
-                        onMouseDown={() => handleTouchStart(' ')}
-                        onMouseUp={() => handleTouchEnd(' ')}
-                    >
-                        <ArrowUp className="w-10 h-10" />
-                    </Button>
-                </div>
-            </div>
-        )}
     </main>
   );
 
     
+
