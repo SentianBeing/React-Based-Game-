@@ -32,6 +32,7 @@ interface Player extends GameObject {
   onGround: boolean;
   direction: 'left' | 'right';
   isWalking: boolean;
+  walkFrame: number;
 }
 
 interface Enemy extends GameObject {
@@ -75,59 +76,132 @@ const createInitialPlayer = (): Player => ({
   id: 1,
   x: 50,
   y: 0,
-  width: 30,
-  height: 50,
+  width: 32,
+  height: 48,
   vx: 0,
   vy: 0,
   onGround: false,
   direction: 'right',
   isWalking: false,
+  walkFrame: 0,
 });
 
-const PlayerSprite = ({ isWalking, onGround }: { isWalking: boolean, onGround: boolean }) => {
-  const walkingClass = isWalking && onGround ? 'animate-walk' : '';
-  return (
-    <div className={`relative w-full h-full ${walkingClass}`}>
-      <style jsx>{`
-        .animate-walk .leg {
-          animation: walk-cycle 0.4s infinite linear;
-        }
-        .animate-walk .leg-2 {
-          animation-delay: 0.2s;
-        }
-        @keyframes walk-cycle {
-          0%, 100% { transform: rotate(0deg); }
-          50% { transform: rotate(20deg); }
-        }
-      `}</style>
-      {/* Head */}
-      <div className="absolute" style={{ top: 0, left: '5px', width: '20px', height: '20px', background: '#FFDAB9', borderRadius: '4px' }}>
-        {/* Hair */}
-        <div className="absolute -top-1 w-full h-3 bg-black" style={{ clipPath: 'polygon(0 100%, 100% 100%, 100% 0, 80% 10%, 20% 10%, 0 0)' }}></div>
-      </div>
-      {/* Dress */}
-      <div className="absolute" style={{ top: '20px', left: '0px', width: '30px', height: '30px', background: 'black', clipPath: 'polygon(20% 0, 80% 0, 100% 100%, 0% 100%)' }} />
-      {/* Legs */}
-       <div className="leg absolute bottom-0 left-[7px] w-2 h-3 bg-black origin-top-left"></div>
-       <div className="leg leg-2 absolute bottom-0 left-[21px] w-2 h-3 bg-black origin-top-left"></div>
+const PixelatedContainer = ({ children }: { children: React.ReactNode }) => (
+    <div className="relative w-full h-full" style={{ imageRendering: 'pixelated' }}>
+        {children}
     </div>
-  );
-};
+);
 
+const PankhuSpriteIdle = () => (
+    <PixelatedContainer>
+        {/* Head */}
+        <div className="absolute w-20 h-20 bg-[#FFDAB9]" style={{ top: '0px', left: '6px' }} />
+        {/* Hair */}
+        <div className="absolute w-24 h-8 bg-black" style={{ top: '-4px', left: '4px' }}/>
+        <div className="absolute w-8 h-8 bg-black" style={{ top: '4px', left: '0px' }}/>
+        <div className="absolute w-8 h-8 bg-black" style={{ top: '4px', left: '24px' }}/>
+        {/* Eyes */}
+        <div className="absolute w-4 h-4 bg-black" style={{ top: '8px', left: '10px' }}/>
+        <div className="absolute w-4 h-4 bg-black" style={{ top: '8px', left: '18px' }}/>
+        {/* Dress */}
+        <div className="absolute w-32 h-28 bg-black" style={{ top: '20px', left: '0px' }}/>
+        {/* Legs */}
+        <div className="absolute w-8 h-8 bg-[#FFDAB9]" style={{ top: '48px', left: '8px' }}/>
+        <div className="absolute w-8 h-8 bg-[#FFDAB9]" style={{ top: '48px', left: '18px' }}/>
+    </PixelatedContainer>
+);
+
+const PankhuSpriteWalk1 = () => (
+    <PixelatedContainer>
+         {/* Head */}
+        <div className="absolute w-20 h-20 bg-[#FFDAB9]" style={{ top: '0px', left: '6px' }} />
+        {/* Hair */}
+        <div className="absolute w-24 h-8 bg-black" style={{ top: '-4px', left: '4px' }}/>
+        <div className="absolute w-8 h-8 bg-black" style={{ top: '4px', left: '0px' }}/>
+        <div className="absolute w-8 h-8 bg-black" style={{ top: '4px', left: '24px' }}/>
+        {/* Eyes */}
+        <div className="absolute w-4 h-4 bg-black" style={{ top: '8px', left: '10px' }}/>
+        <div className="absolute w-4 h-4 bg-black" style={{ top: '8px', left: '18px' }}/>
+        {/* Dress */}
+        <div className="absolute w-32 h-28 bg-black" style={{ top: '20px', left: '0px' }}/>
+        {/* Legs */}
+        <div className="absolute w-8 h-8 bg-[#FFDAB9]" style={{ top: '48px', left: '4px' }}/>
+        <div className="absolute w-8 h-8 bg-black" style={{ top: '48px', left: '20px' }}/>
+    </PixelatedContainer>
+);
+
+const PankhuSpriteWalk2 = () => (
+    <PixelatedContainer>
+         {/* Head */}
+        <div className="absolute w-20 h-20 bg-[#FFDAB9]" style={{ top: '0px', left: '6px' }} />
+        {/* Hair */}
+        <div className="absolute w-24 h-8 bg-black" style={{ top: '-4px', left: '4px' }}/>
+        <div className="absolute w-8 h-8 bg-black" style={{ top: '4px', left: '0px' }}/>
+        <div className="absolute w-8 h-8 bg-black" style={{ top: '4px', left: '24px' }}/>
+        {/* Eyes */}
+        <div className="absolute w-4 h-4 bg-black" style={{ top: '8px', left: '10px' }}/>
+        <div className="absolute w-4 h-4 bg-black" style={{ top: '8px', left: '18px' }}/>
+        {/* Dress */}
+        <div className="absolute w-32 h-28 bg-black" style={{ top: '20px', left: '0px' }}/>
+        {/* Legs */}
+        <div className="absolute w-8 h-8 bg-black" style={{ top: '48px', left: '8px' }}/>
+        <div className="absolute w-8 h-8 bg-[#FFDAB9]" style={{ top: '48px', left: '22px' }}/>
+    </PixelatedContainer>
+);
+
+const PankhuSpriteJump = () => (
+    <PixelatedContainer>
+         {/* Head */}
+        <div className="absolute w-20 h-20 bg-[#FFDAB9]" style={{ top: '0px', left: '6px' }} />
+        {/* Hair */}
+        <div className="absolute w-24 h-8 bg-black" style={{ top: '-4px', left: '4px' }}/>
+        <div className="absolute w-8 h-8 bg-black" style={{ top: '4px', left: '0px' }}/>
+        <div className="absolute w-8 h-8 bg-black" style={{ top: '4px', left: '24px' }}/>
+        {/* Eyes */}
+        <div className="absolute w-4 h-4 bg-black" style={{ top: '8px', left: '10px' }}/>
+        <div className="absolute w-4 h-4 bg-black" style={{ top: '8px', left: '18px' }}/>
+        {/* Dress */}
+        <div className="absolute w-32 h-24 bg-black" style={{ top: '20px', left: '0px' }}/>
+        {/* Legs */}
+        <div className="absolute w-8 h-8 bg-[#FFDAB9]" style={{ top: '44px', left: '12px' }}/>
+    </PixelatedContainer>
+);
+
+
+const PlayerSprite = ({ isWalking, onGround, walkFrame }: { isWalking: boolean, onGround: boolean, walkFrame: number }) => {
+    if (!onGround) {
+        return <PankhuSpriteJump />;
+    }
+    if (isWalking) {
+        return walkFrame === 0 ? <PankhuSpriteWalk1 /> : <PankhuSpriteWalk2 />;
+    }
+    return <PankhuSpriteIdle />;
+};
 
 const PrinceSprite = () => {
     return (
-        <div className="relative w-full h-full">
+        <PixelatedContainer>
             {/* Crown */}
-            <div className="absolute" style={{ top: 0, left: '5px', width: '30px', height: '15px', background: 'gold', clipPath: 'polygon(0 100%, 20% 0, 50% 50%, 80% 0, 100% 100%)' }} />
+            <div className="absolute w-4 h-4 bg-yellow-400" style={{top: '0px', left: '14px'}}></div>
+            <div className="absolute w-4 h-4 bg-yellow-400" style={{top: '4px', left: '10px'}}></div>
+            <div className="absolute w-4 h-4 bg-yellow-400" style={{top: '4px', left: '18px'}}></div>
+
             {/* Head */}
-            <div className="absolute" style={{ top: '15px', left: '10px', width: '20px', height: '20px', background: '#FFDAB9', borderRadius: '4px' }}>
-                {/* Hair */}
-                 <div className="absolute -top-1 w-full h-3 bg-black rounded-t-sm"></div>
-            </div>
+            <div className="absolute w-20 h-20 bg-[#FFDAB9]" style={{ top: '8px', left: '6px' }} />
+
+            {/* Hair */}
+            <div className="absolute w-24 h-8 bg-black" style={{ top: '4px', left: '4px' }} />
+            
+            {/* Eyes */}
+            <div className="absolute w-4 h-4 bg-black" style={{ top: '16px', left: '10px' }}/>
+            <div className="absolute w-4 h-4 bg-black" style={{ top: '16px', left: '18px' }}/>
+            
             {/* Body */}
-            <div className="absolute" style={{ top: '35px', left: '5px', width: '30px', height: '25px', background: '#3498DB', borderRadius: '4px' }} />
-        </div>
+            <div className="absolute w-24 h-32 bg-[#3498DB]" style={{ top: '28px', left: '4px' }}/>
+             {/* Legs */}
+            <div className="absolute w-8 h-8 bg-black" style={{ top: '60px', left: '8px' }}/>
+            <div className="absolute w-8 h-8 bg-black" style={{ top: '60px', left: '18px' }}/>
+        </PixelatedContainer>
     );
 }
 
@@ -146,6 +220,8 @@ export default function PankhusQuest() {
 
   const keysPressed = useRef<Record<string, boolean>>({});
   const gameLoopRef = useRef<number>();
+  const lastFrameTime = useRef(performance.now());
+  const walkFrameCounter = useRef(0);
 
   const resetGame = useCallback(() => {
     setPlayer(createInitialPlayer());
@@ -216,6 +292,7 @@ export default function PankhusQuest() {
       let newVx = 0;
       let newDirection = p.direction;
       let isWalking = false;
+
       if (keysPressed.current['ArrowLeft'] || keysPressed.current['a']) {
         newVx = -PLAYER_SPEED;
         newDirection = 'left';
@@ -235,18 +312,46 @@ export default function PankhusQuest() {
       let newX = p.x + newVx;
       let newY = p.y + newVy;
       let onGround = false;
+      let newWalkFrame = p.walkFrame;
+
+      // Update walk animation frame
+      if (isWalking && p.onGround) {
+        walkFrameCounter.current += 1;
+        if(walkFrameCounter.current > 8) {
+             newWalkFrame = (p.walkFrame + 1) % 2;
+             walkFrameCounter.current = 0;
+        }
+      } else {
+        newWalkFrame = 0;
+        walkFrameCounter.current = 0;
+      }
 
       // Collision with platforms
       initialLevel.platforms.forEach(platform => {
+        // Check for vertical collision (landing on top)
         if (
-          newX < platform.x + platform.width &&
-          newX + p.width > platform.x &&
+          p.x < platform.x + platform.width &&
+          p.x + p.width > platform.x &&
           p.y + p.height <= platform.y &&
           newY + p.height >= platform.y
         ) {
           newY = platform.y - p.height;
           newVy = 0;
           onGround = true;
+        }
+
+        // Check for horizontal collision
+         if (
+            newX < platform.x + platform.width &&
+            newX + p.width > platform.x &&
+            p.y < platform.y + platform.height &&
+            p.y + p.height > platform.y
+        ) {
+            if (newVx > 0) { // Moving right
+                newX = platform.x - p.width;
+            } else if (newVx < 0) { // Moving left
+                newX = platform.x + platform.width;
+            }
         }
       });
       
@@ -258,7 +363,7 @@ export default function PankhusQuest() {
         setGameState('gameOver');
       }
 
-      return { ...p, x: newX, y: newY, vx: newVx, vy: newVy, onGround, direction: newDirection, isWalking };
+      return { ...p, x: newX, y: newY, vx: newVx, vy: newVy, onGround, direction: newDirection, isWalking, walkFrame: newWalkFrame };
     });
 
     // Enemy logic
@@ -284,7 +389,15 @@ export default function PankhusQuest() {
       // Enemies
       enemies.forEach(enemy => {
         if (checkCollision(p, enemy)) {
-          setGameState('gameOver');
+           // Check for stomp
+           if (p.vy > 0 && p.y + p.height < enemy.y + enemy.height) {
+                setEnemies(prev => prev.filter(e => e.id !== enemy.id));
+                setScore(s => s + 50);
+                // Make player bounce
+                 setPlayer(currentPlayer => ({...currentPlayer, vy: -JUMP_STRENGTH / 2}));
+            } else {
+                setGameState('gameOver');
+            }
         }
       });
 
@@ -434,7 +547,7 @@ export default function PankhusQuest() {
                            <div className="absolute -top-5 left-1/2 -translate-x-1/2 bg-black/50 text-white text-xs px-2 py-1 rounded">
                                 Pankhu
                             </div>
-                           <PlayerSprite isWalking={player.isWalking} onGround={player.onGround} />
+                           <PlayerSprite isWalking={player.isWalking} onGround={player.onGround} walkFrame={player.walkFrame} />
                         </div>
                     </div>
 
@@ -509,11 +622,5 @@ export default function PankhusQuest() {
         )}
     </main>
   );
-
-    
-
-
-
-    
 
     
