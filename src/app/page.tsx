@@ -228,7 +228,7 @@ export default function PankhusQuest() {
 
   const handleMouseUp = (key: string) => (e: React.MouseEvent<HTMLButtonElement>) => {
      e.preventDefault();
-    keysPressed.current[e.key] = false;
+    keysPressed.current[key] = false;
   }
   
   const gameLoop = useCallback(() => {
@@ -576,3 +576,5 @@ export default function PankhusQuest() {
     </main>
   );
 }
+
+    
