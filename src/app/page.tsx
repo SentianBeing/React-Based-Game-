@@ -422,48 +422,52 @@ export default function PankhusQuest() {
                     </div>
                 </div>
             </div>
-            
-            {/* Mobile Controls */}
-            {isMobile && gameState === 'playing' && (
-                <div className="absolute bottom-4 left-0 right-0 flex justify-center items-end z-20 pointer-events-none">
-                    <div className="flex items-end gap-4 pointer-events-auto">
-                        <Button 
-                            size="lg" 
-                            className="w-16 h-16 rounded-full opacity-80"
-                            onTouchStart={() => handleTouchStart('ArrowLeft')}
-                            onTouchEnd={() => handleTouchEnd('ArrowLeft')}
-                            onMouseDown={() => handleTouchStart('ArrowLeft')}
-                            onMouseUp={() => handleTouchEnd('ArrowLeft')}
-                        >
-                            <ArrowLeft className="w-8 h-8"/>
-                        </Button>
-                        <Button 
-                            size="lg" 
-                            className="w-20 h-20 rounded-full opacity-80"
-                            onTouchStart={() => handleTouchStart(' ')}
-                            onTouchEnd={() => handleTouchEnd(' ')}
-                            onMouseDown={() => handleTouchStart(' ')}
-                            onMouseUp={() => handleTouchEnd(' ')}
-                        >
-                            <ArrowUp className="w-10 h-10" />
-                        </Button>
-                        <Button 
-                            size="lg" 
-                            className="w-16 h-16 rounded-full opacity-80"
-                            onTouchStart={() => handleTouchStart('ArrowRight')}
-                            onTouchEnd={() => handleTouchEnd('ArrowRight')}
-                            onMouseDown={() => handleTouchStart('ArrowRight')}
-                            onMouseUp={() => handleTouchEnd('ArrowRight')}
-                        >
-                            <ArrowRight className="w-8 h-8"/>
-                        </Button>
-                    </div>
-                </div>
-            )}
           </div>
         </div>
+         {/* Mobile Controls */}
+         {isMobile && gameState === 'playing' && (
+            <div className="absolute bottom-4 left-4 right-4 flex justify-between items-center z-20 pointer-events-none md:hidden">
+                <div className="flex gap-2 pointer-events-auto">
+                    <Button 
+                        size="lg" 
+                        className="w-16 h-16 rounded-full opacity-80"
+                        onTouchStart={() => handleTouchStart('ArrowLeft')}
+                        onTouchEnd={() => handleTouchEnd('ArrowLeft')}
+                        onMouseDown={() => handleTouchStart('ArrowLeft')}
+                        onMouseUp={() => handleTouchEnd('ArrowLeft')}
+                    >
+                        <ArrowLeft className="w-8 h-8"/>
+                    </Button>
+                    <Button 
+                        size="lg" 
+                        className="w-16 h-16 rounded-full opacity-80"
+                        onTouchStart={() => handleTouchStart('ArrowRight')}
+                        onTouchEnd={() => handleTouchEnd('ArrowRight')}
+                        onMouseDown={() => handleTouchStart('ArrowRight')}
+                        onMouseUp={() => handleTouchEnd('ArrowRight')}
+                    >
+                        <ArrowRight className="w-8 h-8"/>
+                    </Button>
+                </div>
+                <div className="pointer-events-auto">
+                    <Button 
+                        size="lg" 
+                        className="w-20 h-20 rounded-full opacity-80"
+                        onTouchStart={() => handleTouchStart(' ')}
+                        onTouchEnd={() => handleTouchEnd(' ')}
+                        onMouseDown={() => handleTouchStart(' ')}
+                        onMouseUp={() => handleTouchEnd(' ')}
+                    >
+                        <ArrowUp className="w-10 h-10" />
+                    </Button>
+                </div>
+            </div>
+        )}
     </main>
   );
 
     
 
+
+
+    
