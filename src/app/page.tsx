@@ -6,7 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Award, Coins, HeartCrack, ArrowLeft, ArrowRight, ArrowUp } from 'lucide-react';
-import Image from 'next/image';
+import Image, { StaticImageData } from 'next/image';
 
 // Import images
 import PankhuIdleImage from './images/idle.png';
@@ -95,36 +95,23 @@ const createInitialPlayer = (): Player => ({
   walkFrame: 0,
 });
 
-const PankhuSpriteIdle = () => (
-    <Image src={PankhuIdleImage} alt="Pankhu Idle" layout="fill" objectFit="contain" unoptimized />
-);
+const PlayerSprite = ({ isWalking, onGround, walkFrame }: { isWalking: boolean; onGround: boolean; walkFrame: number }) => {
+    let spriteSrc: StaticImageData = PankhuIdleImage;
 
-const PankhuSpriteWalk1 = () => (
-    <Image src={PankhuWalk1Image} alt="Pankhu Walk 1" layout="fill" objectFit="contain" unoptimized />
-);
-
-const PankhuSpriteWalk2 = () => (
-    <Image src={PankhuWalk2Image} alt="Pankhu Walk 2" layout="fill" objectFit="contain" unoptimized />
-);
-
-const PankhuSpriteJump = () => (
-    <Image src={PankhuJumpImage} alt="Pankhu Jump" layout="fill" objectFit="contain" unoptimized />
-);
-
-
-const PlayerSprite = ({ isWalking, onGround, walkFrame }: { isWalking: boolean, onGround: boolean, walkFrame: number }) => {
     if (!onGround) {
-        return <PankhuSpriteJump />;
+        spriteSrc = PankhuJumpImage;
+    } else if (isWalking) {
+        spriteSrc = walkFrame === 0 ? PankhuWalk1Image : PankhuWalk2Image;
     }
-    if (isWalking) {
-        return walkFrame === 0 ? <PankhuSpriteWalk1 /> : <PankhuSpriteWalk2 />;
-    }
-    return <PankhuSpriteIdle />;
+
+    return (
+        <Image src={spriteSrc} alt="Pankhu" layout="fill" objectFit="contain" />
+    );
 };
 
 const PrinceSprite = () => {
     return (
-       <Image src={PankhuIdleImage} alt="Prince" layout="fill" objectFit="contain" unoptimized />
+       <Image src={PankhuIdleImage} alt="Prince" layout="fill" objectFit="contain" />
     );
 }
 
@@ -228,7 +215,7 @@ export default function PankhusQuest() {
 
   const handleMouseUp = (key: string) => (e: React.MouseEvent<HTMLButtonElement>) => {
      e.preventDefault();
-    keysPressed.current[e.key] = false;
+     keysPressed.current[key] = false;
   }
   
   const gameLoop = useCallback(() => {
