@@ -13,6 +13,7 @@ import PankhuIdleImage from './images/idle.png';
 import PankhuWalk1Image from './images/walk1.png';
 import PankhuWalk2Image from './images/walk2.png';
 import PankhuJumpImage from './images/jump.png';
+import PrinceImage from './images/prince.png';
 
 
 // Game Constants
@@ -111,7 +112,7 @@ const PlayerSprite = ({ isWalking, onGround, walkFrame }: { isWalking: boolean; 
 
 const PrinceSprite = () => {
     return (
-       <Image src={PankhuIdleImage} alt="Prince" layout="fill" objectFit="contain" />
+       <Image src={PrinceImage} alt="Prince" layout="fill" objectFit="contain" data-ai-hint="pixelated prince" />
     );
 }
 
@@ -563,5 +564,3 @@ export default function PankhusQuest() {
     </main>
   );
 }
-
-    
