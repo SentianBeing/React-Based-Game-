@@ -528,7 +528,7 @@ export default function PankhusQuest() {
                 {/* Game World */}
                 <div className="relative w-full h-full" style={{ transform: `translateX(-${cameraX}px)`}}>
                     {/* Player */}
-                    { gameState !== 'ending' && (
+                    { (gameState === 'playing' || gameState === 'ending') && (
                         <div 
                         className="absolute"
                         style={{ 
@@ -630,5 +630,3 @@ export default function PankhusQuest() {
     </main>
   );
 }
-
-    
