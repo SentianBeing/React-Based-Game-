@@ -5,7 +5,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Award, Coins, HeartCrack } from 'lucide-react';
+import { Award, Coins, HeartCrack, ArrowLeft, ArrowRight, ArrowUp } from 'lucide-react';
 
 // Game Constants
 const GAME_ASPECT_RATIO = 4 / 3;
@@ -91,6 +91,7 @@ export default function PankhusQuest() {
   const [score, setScore] = useState(0);
   const [cameraX, setCameraX] = useState(0);
   const [gameDimensions, setGameDimensions] = useState({ width: BASE_GAME_WIDTH, height: BASE_GAME_HEIGHT });
+  const [isMobile, setIsMobile] = useState(false);
   
   const gameContainerRef = useRef<HTMLDivElement>(null);
 
@@ -107,18 +108,28 @@ export default function PankhusQuest() {
   }, []);
 
   useEffect(() => {
+    const checkIsMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    checkIsMobile();
+    window.addEventListener('resize', checkIsMobile);
+    return () => window.removeEventListener('resize', checkIsMobile);
+  }, []);
+
+  useEffect(() => {
     const handleResize = () => {
       if (gameContainerRef.current) {
-        const { width, height } = gameContainerRef.current.getBoundingClientRect();
+        const parent = gameContainerRef.current.parentElement;
+        if (!parent) return;
+
+        const { width, height } = parent.getBoundingClientRect();
         
         let newWidth = width;
         let newHeight = height;
 
         if (width / height > GAME_ASPECT_RATIO) {
-            // Wider than game aspect ratio, height is the constraint
             newWidth = height * GAME_ASPECT_RATIO;
         } else {
-            // Taller than game aspect ratio, width is the constraint
             newHeight = width / GAME_ASPECT_RATIO;
         }
 
@@ -145,6 +156,9 @@ export default function PankhusQuest() {
       window.removeEventListener('keyup', handleKeyUp);
     };
   }, []);
+
+  const handleTouchStart = (key: string) => { keysPressed.current[key] = true; };
+  const handleTouchEnd = (key: string) => { keysPressed.current[key] = false; };
   
   const gameLoop = useCallback(() => {
     if (gameState !== 'playing') return;
@@ -232,7 +246,7 @@ export default function PankhusQuest() {
 
     // Update camera
     setCameraX(prev => {
-        const target = player.x - (BASE_GAME_WIDTH / 2);
+        const target = player.x - (BASE_GAME_WIDTH / 3);
         const newCamX = prev + (target - prev) * 0.1;
         return Math.max(0, newCamX);
     });
@@ -263,13 +277,13 @@ export default function PankhusQuest() {
   const scale = gameDimensions.width / BASE_GAME_WIDTH;
 
   return (
-    <div className="flex flex-col items-center justify-center font-headline bg-background text-foreground p-4 h-screen">
-        <h1 className="text-4xl md:text-6xl font-bold mb-4 shrink-0">Pankhu's Quest</h1>
+    <main className="flex flex-col items-center justify-center font-headline bg-background text-foreground h-screen overflow-hidden p-2">
+        <h1 className="text-3xl md:text-4xl font-bold shrink-0 my-2">Pankhu's Quest</h1>
         <div 
-          ref={gameContainerRef}
-          className="relative w-full h-full flex items-center justify-center"
+          className="relative w-full flex-1 flex items-center justify-center"
         >
           <div 
+            ref={gameContainerRef}
             style={{ width: gameDimensions.width, height: gameDimensions.height }} 
             className="relative overflow-hidden bg-primary rounded-lg shadow-2xl border-4 border-foreground"
           >
@@ -280,41 +294,43 @@ export default function PankhusQuest() {
                           initial={{ opacity: 0 }}
                           animate={{ opacity: 1 }}
                           exit={{ opacity: 0 }}
-                          className="absolute inset-0 bg-black/70 z-20 flex items-center justify-center"
+                          className="absolute inset-0 z-20 flex items-center justify-center"
                           style={{transform: `scale(${1/scale})`, transformOrigin: 'top left'}}
                         >
-                          <Card className="text-center w-80">
-                            <CardHeader>
-                              <CardTitle className="text-3xl">
-                                {gameState === 'start' && "Pankhu's Quest"}
-                                {gameState === 'gameOver' && "Game Over"}
-                                {gameState === 'win' && "You Win!"}
-                              </CardTitle>
-                            </CardHeader>
-                            <CardContent className="space-y-4">
-                               {gameState === 'start' && <p>Help Princess Pankhu rescue Prince Karthik!</p>}
-                               {gameState === 'gameOver' && <HeartCrack className="w-16 h-16 mx-auto text-destructive" />}
-                               {gameState === 'win' && (
-                                <div className="flex flex-col items-center gap-2">
-                                    <Award className="w-16 h-16 mx-auto text-yellow-400" />
-                                    <p>You rescued Prince Karthik!</p>
-                                    <p className="text-2xl font-bold">Final Score: {score}</p>
-                                </div>
-                               )}
+                           <div className="absolute inset-0 bg-black/70 flex items-center justify-center p-4">
+                              <Card className="text-center w-full max-w-sm">
+                                <CardHeader>
+                                  <CardTitle className="text-3xl">
+                                    {gameState === 'start' && "Pankhu's Quest"}
+                                    {gameState === 'gameOver' && "Game Over"}
+                                    {gameState === 'win' && "You Win!"}
+                                  </CardTitle>
+                                </CardHeader>
+                                <CardContent className="space-y-4">
+                                  {gameState === 'start' && <p>Help Princess Pankhu rescue Prince Karthik!</p>}
+                                  {gameState === 'gameOver' && <HeartCrack className="w-16 h-16 mx-auto text-destructive" />}
+                                  {gameState === 'win' && (
+                                    <div className="flex flex-col items-center gap-2">
+                                        <Award className="w-16 h-16 mx-auto text-yellow-400" />
+                                        <p>You rescued Prince Karthik!</p>
+                                        <p className="text-2xl font-bold">Final Score: {score}</p>
+                                    </div>
+                                  )}
 
-                               <Button onClick={resetGame} size="lg">
-                                {gameState === 'start' ? 'Start Game' : 'Play Again'}
-                               </Button>
+                                  <Button onClick={resetGame} size="lg">
+                                    {gameState === 'start' ? 'Start Game' : 'Play Again'}
+                                  </Button>
 
-                               {gameState === 'start' && (
-                                <div className="text-sm text-muted-foreground pt-4">
-                                    <p><strong>Controls:</strong></p>
-                                    <p>Arrow Keys / WASD to Move</p>
-                                    <p>Space / Up Arrow / W to Jump</p>
-                                </div>
-                               )}
-                            </CardContent>
-                          </Card>
+                                  {gameState === 'start' && (
+                                    <div className="text-sm text-muted-foreground pt-4">
+                                        <p><strong>Controls:</strong></p>
+                                        <p>Arrow Keys / WASD to Move</p>
+                                        <p>Space / Up Arrow / W to Jump</p>
+                                    </div>
+                                  )}
+                                </CardContent>
+                              </Card>
+                           </div>
                         </motion.div>
                     )}
                 </AnimatePresence>
@@ -340,7 +356,7 @@ export default function PankhusQuest() {
                 />
 
                 {/* HUD */}
-                <div className="absolute top-4 left-4 z-10">
+                <div className="absolute top-4 left-4 z-10" style={{transform: `scale(${1/scale})`, transformOrigin: 'top left'}}>
                     <div className="flex items-center gap-2 bg-black/50 text-white p-2 rounded-lg font-bold text-xl">
                        <Coins className="text-yellow-400" />
                        <span>{score}</span>
@@ -368,7 +384,7 @@ export default function PankhusQuest() {
                             {/* Head */}
                             <div className="absolute" style={{ top: 0, left: '5px', width: '20px', height: '20px', background: '#FFDAB9', borderRadius: '4px' }} /> 
                             {/* Dress */}
-                            <div className="absolute" style={{ top: '20px', left: '0px', width: '30px', height: '30px', background: 'black', clipPath: 'polygon(20% 0, 80% 0, 100% 100%, 0% 100%)', borderRadius: '4px' }} />
+                            <div className="absolute" style={{ top: '20px', left: '0px', width: '30px', height: '30px', background: 'hotpink', clipPath: 'polygon(20% 0, 80% 0, 100% 100%, 0% 100%)', borderRadius: '4px' }} />
                         </div>
                     </div>
 
@@ -404,6 +420,45 @@ export default function PankhusQuest() {
             </div>
           </div>
         </div>
-    </div>
+
+        {/* Mobile Controls */}
+        {isMobile && gameState === 'playing' && (
+            <div className="absolute bottom-4 left-4 right-4 flex justify-between items-center z-20">
+                <div className="flex gap-4">
+                    <Button 
+                        size="lg" 
+                        className="w-16 h-16 rounded-full opacity-80"
+                        onTouchStart={() => handleTouchStart('ArrowLeft')}
+                        onTouchEnd={() => handleTouchEnd('ArrowLeft')}
+                        onMouseDown={() => handleTouchStart('ArrowLeft')}
+                        onMouseUp={() => handleTouchEnd('ArrowLeft')}
+                    >
+                        <ArrowLeft className="w-8 h-8"/>
+                    </Button>
+                    <Button 
+                        size="lg" 
+                        className="w-16 h-16 rounded-full opacity-80"
+                        onTouchStart={() => handleTouchStart('ArrowRight')}
+                        onTouchEnd={() => handleTouchEnd('ArrowRight')}
+                        onMouseDown={() => handleTouchStart('ArrowRight')}
+                        onMouseUp={() => handleTouchEnd('ArrowRight')}
+                    >
+                        <ArrowRight className="w-8 h-8"/>
+                    </Button>
+                </div>
+                <Button 
+                    size="lg" 
+                    className="w-20 h-20 rounded-full opacity-80"
+                    onTouchStart={() => handleTouchStart(' ')}
+                    onTouchEnd={() => handleTouchEnd(' ')}
+                    onMouseDown={() => handleTouchStart(' ')}
+                    onMouseUp={() => handleTouchEnd(' ')}
+                >
+                    <ArrowUp className="w-10 h-10" />
+                </Button>
+            </div>
+        )}
+    </main>
   );
-}
+
+    
