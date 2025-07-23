@@ -10,33 +10,9 @@ import Image from 'next/image';
 
 // Import images
 import PankhuIdleImage from './images/idle.png';
-// The following images are optional. If they exist, they will be used for animations.
-// If not, idle.png will be used as a fallback.
-let PankhuWalk1Image: any = PankhuIdleImage;
-let PankhuWalk2Image: any = PankhuIdleImage;
-let PankhuJumpImage: any = PankhuIdleImage;
-let PrinceImage: any = PankhuIdleImage;
-
-try {
-  PankhuWalk1Image = require('./images/walk1.png').default;
-} catch (e) {
-  // ignore
-}
-try {
-  PankhuWalk2Image = require('./images/walk2.png').default;
-} catch (e) {
-  // ignore
-}
-try {
-  PankhuJumpImage = require('./images/jump.png').default;
-} catch (e) {
-  // ignore
-}
-try {
-  PrinceImage = require('./images/prince.png').default;
-} catch (e) {
-  // ignore
-}
+import PankhuWalk1Image from './images/walk1.png';
+import PankhuWalk2Image from './images/walk2.png';
+import PankhuJumpImage from './images/jump.png';
 
 
 // Game Constants
@@ -148,7 +124,7 @@ const PlayerSprite = ({ isWalking, onGround, walkFrame }: { isWalking: boolean, 
 
 const PrinceSprite = () => {
     return (
-       <Image src={PrinceImage} alt="Prince" layout="fill" objectFit="contain" unoptimized />
+       <Image src={PankhuIdleImage} alt="Prince" layout="fill" objectFit="contain" unoptimized />
     );
 }
 
@@ -164,7 +140,6 @@ export default function PankhusQuest() {
   const [isMobile, setIsMobile] = useState(false);
   
   const gameContainerRef = useRef<HTMLDivElement>(null);
-  
   const scale = gameDimensions.width / BASE_GAME_WIDTH;
 
   const keysPressed = useRef<Record<string, boolean>>({});
