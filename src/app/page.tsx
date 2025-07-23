@@ -109,10 +109,22 @@ export default function PankhusQuest() {
   useEffect(() => {
     const handleResize = () => {
       if (gameContainerRef.current) {
-        const { width } = gameContainerRef.current.getBoundingClientRect();
+        const { width, height } = gameContainerRef.current.getBoundingClientRect();
+        
+        let newWidth = width;
+        let newHeight = height;
+
+        if (width / height > GAME_ASPECT_RATIO) {
+            // Wider than game aspect ratio, height is the constraint
+            newWidth = height * GAME_ASPECT_RATIO;
+        } else {
+            // Taller than game aspect ratio, width is the constraint
+            newHeight = width / GAME_ASPECT_RATIO;
+        }
+
         setGameDimensions({
-            width: width,
-            height: width / GAME_ASPECT_RATIO,
+            width: newWidth,
+            height: newHeight,
         });
       }
     };
@@ -220,13 +232,13 @@ export default function PankhusQuest() {
 
     // Update camera
     setCameraX(prev => {
-        const target = player.x - (gameDimensions.width / 2) * (BASE_GAME_WIDTH / gameDimensions.width)
+        const target = player.x - (BASE_GAME_WIDTH / 2);
         const newCamX = prev + (target - prev) * 0.1;
         return Math.max(0, newCamX);
     });
 
     gameLoopRef.current = requestAnimationFrame(gameLoop);
-  }, [gameState, player.x, enemies, gameDimensions.width]);
+  }, [gameState, player.x, enemies]);
 
   useEffect(() => {
     if (gameState === 'playing') {
@@ -251,145 +263,147 @@ export default function PankhusQuest() {
   const scale = gameDimensions.width / BASE_GAME_WIDTH;
 
   return (
-    <div className="flex flex-col items-center justify-center font-headline bg-background text-foreground p-4 w-screen h-screen">
-        <h1 className="text-4xl md:text-6xl font-bold mb-4">Pankhu's Quest</h1>
+    <div className="flex flex-col items-center justify-center font-headline bg-background text-foreground p-4 h-screen">
+        <h1 className="text-4xl md:text-6xl font-bold mb-4 shrink-0">Pankhu's Quest</h1>
         <div 
           ref={gameContainerRef}
-          style={{ width: '100%', maxWidth: BASE_GAME_WIDTH, aspectRatio: `${BASE_GAME_WIDTH}/${BASE_GAME_HEIGHT}` }} 
-          className="relative overflow-hidden bg-primary rounded-lg shadow-2xl border-4 border-foreground"
+          className="relative w-full h-full flex items-center justify-center"
         >
-          <div style={{ transform: `scale(${scale})`, transformOrigin: 'top left', width: BASE_GAME_WIDTH, height: BASE_GAME_HEIGHT }}>
-            <AnimatePresence>
-                {gameState !== 'playing' && (
-                    <motion.div 
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      exit={{ opacity: 0 }}
-                      className="absolute inset-0 bg-black/70 z-20 flex items-center justify-center"
-                      style={{transform: `scale(${1/scale})`, transformOrigin: 'top left'}}
-                    >
-                      <Card className="text-center w-80">
-                        <CardHeader>
-                          <CardTitle className="text-3xl">
-                            {gameState === 'start' && "Pankhu's Quest"}
-                            {gameState === 'gameOver' && "Game Over"}
-                            {gameState === 'win' && "You Win!"}
-                          </CardTitle>
-                        </CardHeader>
-                        <CardContent className="space-y-4">
-                           {gameState === 'start' && <p>Help Princess Pankhu rescue Prince Karthik!</p>}
-                           {gameState === 'gameOver' && <HeartCrack className="w-16 h-16 mx-auto text-destructive" />}
-                           {gameState === 'win' && (
-                            <div className="flex flex-col items-center gap-2">
-                                <Award className="w-16 h-16 mx-auto text-yellow-400" />
-                                <p>You rescued Prince Karthik!</p>
-                                <p className="text-2xl font-bold">Final Score: {score}</p>
-                            </div>
-                           )}
+          <div 
+            style={{ width: gameDimensions.width, height: gameDimensions.height }} 
+            className="relative overflow-hidden bg-primary rounded-lg shadow-2xl border-4 border-foreground"
+          >
+            <div style={{ transform: `scale(${scale})`, transformOrigin: 'top left', width: BASE_GAME_WIDTH, height: BASE_GAME_HEIGHT, imageRendering: 'pixelated' }}>
+                <AnimatePresence>
+                    {gameState !== 'playing' && (
+                        <motion.div 
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          exit={{ opacity: 0 }}
+                          className="absolute inset-0 bg-black/70 z-20 flex items-center justify-center"
+                          style={{transform: `scale(${1/scale})`, transformOrigin: 'top left'}}
+                        >
+                          <Card className="text-center w-80">
+                            <CardHeader>
+                              <CardTitle className="text-3xl">
+                                {gameState === 'start' && "Pankhu's Quest"}
+                                {gameState === 'gameOver' && "Game Over"}
+                                {gameState === 'win' && "You Win!"}
+                              </CardTitle>
+                            </CardHeader>
+                            <CardContent className="space-y-4">
+                               {gameState === 'start' && <p>Help Princess Pankhu rescue Prince Karthik!</p>}
+                               {gameState === 'gameOver' && <HeartCrack className="w-16 h-16 mx-auto text-destructive" />}
+                               {gameState === 'win' && (
+                                <div className="flex flex-col items-center gap-2">
+                                    <Award className="w-16 h-16 mx-auto text-yellow-400" />
+                                    <p>You rescued Prince Karthik!</p>
+                                    <p className="text-2xl font-bold">Final Score: {score}</p>
+                                </div>
+                               )}
 
-                           <Button onClick={resetGame} size="lg">
-                            {gameState === 'start' ? 'Start Game' : 'Play Again'}
-                           </Button>
+                               <Button onClick={resetGame} size="lg">
+                                {gameState === 'start' ? 'Start Game' : 'Play Again'}
+                               </Button>
 
-                           {gameState === 'start' && (
-                            <div className="text-sm text-muted-foreground pt-4">
-                                <p><strong>Controls:</strong></p>
-                                <p>Arrow Keys / WASD to Move</p>
-                                <p>Space / Up Arrow / W to Jump</p>
-                            </div>
-                           )}
-                        </CardContent>
-                      </Card>
-                    </motion.div>
-                )}
-            </AnimatePresence>
+                               {gameState === 'start' && (
+                                <div className="text-sm text-muted-foreground pt-4">
+                                    <p><strong>Controls:</strong></p>
+                                    <p>Arrow Keys / WASD to Move</p>
+                                    <p>Space / Up Arrow / W to Jump</p>
+                                </div>
+                               )}
+                            </CardContent>
+                          </Card>
+                        </motion.div>
+                    )}
+                </AnimatePresence>
 
-            {/* Parallax Background */}
-            <div 
-                className="absolute inset-0 bg-repeat-x"
-                style={{
-                    backgroundImage: 'url(\'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><rect width="100" height="100" fill="%23d2eaf4"/><path d="M 50 0 A 50 50 0 0 1 100 50 L 100 100 L 0 100 L 0 50 A 50 50 0 0 1 50 0" fill="%23a9cce3"/></svg>\')',
-                    backgroundPosition: `${-cameraX * 0.1}px 0`,
-                    backgroundSize: '400px 400px',
-                    opacity: 0.5
-                }}
-            />
-             <div 
-                className="absolute inset-0 bg-repeat-x"
-                style={{
-                    backgroundImage: 'url(\'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200"><rect width="200" height="200" fill="none"/><path d="M-20 150 C 30 100, 70 100, 120 150 S 170 200, 220 150" stroke="%2385c1e9" stroke-width="10" fill="none"/></svg>\')',
-                    backgroundPosition: `${-cameraX * 0.3}px 250px`,
-                    backgroundSize: '300px 200px',
-                    opacity: 0.7
-                }}
-            />
-
-            {/* HUD */}
-            <div className="absolute top-4 left-4 z-10">
-                <div className="flex items-center gap-2 bg-black/50 text-white p-2 rounded-lg font-bold text-xl">
-                   <Coins className="text-yellow-400" />
-                   <span>{score}</span>
-                </div>
-            </div>
-
-            {/* Game World */}
-            <div className="relative w-full h-full" style={{ transform: `translateX(-${cameraX}px)`}}>
-                {/* Player */}
+                {/* Parallax Background */}
                 <div 
-                  className="absolute"
-                  style={{ 
-                    transform: `translate(${player.x}px, ${player.y}px)`,
-                    width: player.width, 
-                    height: player.height,
-                  }}
-                >
-                    <div 
-                      className="w-full h-full" 
-                      style={{transform: `scaleX(${player.direction === 'right' ? 1 : -1})`}}
-                    >
-                        <div className="absolute -top-5 left-1/2 -translate-x-1/2 bg-black/50 text-white text-xs px-2 py-1 rounded">
-                            Pankhu
-                        </div>
-                        {/* Head */}
-                        <div className="absolute" style={{ top: 0, left: '5px', width: '20px', height: '20px', background: '#FFDAB9', borderRadius: '4px' }} /> 
-                        {/* Dress */}
-                        <div className="absolute" style={{ top: '20px', left: '0px', width: '30px', height: '30px', background: 'black', clipPath: 'polygon(20% 0, 80% 0, 100% 100%, 0% 100%)', borderRadius: '4px' }} />
+                    className="absolute inset-0 bg-repeat-x"
+                    style={{
+                        backgroundImage: 'url(\'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><rect width="100" height="100" fill="%23d2eaf4"/><path d="M 50 0 A 50 50 0 0 1 100 50 L 100 100 L 0 100 L 0 50 A 50 50 0 0 1 50 0" fill="%23a9cce3"/></svg>\')',
+                        backgroundPosition: `${-cameraX * 0.1}px 0`,
+                        backgroundSize: '400px 400px',
+                        opacity: 0.5
+                    }}
+                />
+                 <div 
+                    className="absolute inset-0 bg-repeat-x"
+                    style={{
+                        backgroundImage: 'url(\'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200"><rect width="200" height="200" fill="none"/><path d="M-20 150 C 30 100, 70 100, 120 150 S 170 200, 220 150" stroke="%2385c1e9" stroke-width="10" fill="none"/></svg>\')',
+                        backgroundPosition: `${-cameraX * 0.3}px 250px`,
+                        backgroundSize: '300px 200px',
+                        opacity: 0.7
+                    }}
+                />
+
+                {/* HUD */}
+                <div className="absolute top-4 left-4 z-10">
+                    <div className="flex items-center gap-2 bg-black/50 text-white p-2 rounded-lg font-bold text-xl">
+                       <Coins className="text-yellow-400" />
+                       <span>{score}</span>
                     </div>
                 </div>
 
-                {/* Platforms */}
-                {initialLevel.platforms.map(p => (
-                  <div key={p.id} className="absolute bg-[#A97C50] border-b-4 border-black/20" style={{ left: p.x, top: p.y, width: p.width, height: p.height }} />
-                ))}
+                {/* Game World */}
+                <div className="relative w-full h-full" style={{ transform: `translateX(-${cameraX}px)`}}>
+                    {/* Player */}
+                    <div 
+                      className="absolute"
+                      style={{ 
+                        transform: `translate(${player.x}px, ${player.y}px)`,
+                        width: player.width, 
+                        height: player.height,
+                      }}
+                    >
+                        <div 
+                          className="w-full h-full" 
+                          style={{transform: `scaleX(${player.direction === 'right' ? 1 : -1})`}}
+                        >
+                            <div className="absolute -top-5 left-1/2 -translate-x-1/2 bg-black/50 text-white text-xs px-2 py-1 rounded">
+                                Pankhu
+                            </div>
+                            {/* Head */}
+                            <div className="absolute" style={{ top: 0, left: '5px', width: '20px', height: '20px', background: '#FFDAB9', borderRadius: '4px' }} /> 
+                            {/* Dress */}
+                            <div className="absolute" style={{ top: '20px', left: '0px', width: '30px', height: '30px', background: 'black', clipPath: 'polygon(20% 0, 80% 0, 100% 100%, 0% 100%)', borderRadius: '4px' }} />
+                        </div>
+                    </div>
 
-                {/* Coins */}
-                {coins.map(c => !c.collected && (
-                  <div key={c.id} className="absolute coin-spin" style={{ left: c.x, top: c.y, width: c.width, height: c.height, perspective: '1000px' }}>
-                     <div className="w-full h-full bg-yellow-400 rounded-full border-2 border-yellow-600 shadow-md"/>
-                  </div>
-                ))}
-                
-                {/* Enemies */}
-                {enemies.map(e => (
-                   <div key={e.id} className="absolute" style={{ left: e.x, top: e.y, width: e.width, height: e.height }}>
-                        <div className="w-full h-full bg-red-600 rounded-md border-2 border-red-800 animate-pulse" />
-                   </div>
-                ))}
+                    {/* Platforms */}
+                    {initialLevel.platforms.map(p => (
+                      <div key={p.id} className="absolute bg-[#A97C50] border-b-4 border-black/20" style={{ left: p.x, top: p.y, width: p.width, height: p.height }} />
+                    ))}
 
-                {/* Prince */}
-                <div className="absolute" style={{ left: initialLevel.prince.x, top: initialLevel.prince.y, width: initialLevel.prince.width, height: initialLevel.prince.height }}>
-                    {/* Crown */}
-                    <div className="absolute" style={{ top: 0, left: '5px', width: '30px', height: '15px', background: 'gold', clipPath: 'polygon(0 100%, 20% 0, 50% 50%, 80% 0, 100% 100%)' }} />
-                    {/* Head */}
-                    <div className="absolute" style={{ top: '15px', left: '10px', width: '20px', height: '20px', background: '#FFDAB9', borderRadius: '4px' }} />
-                    {/* Body */}
-                    <div className="absolute" style={{ top: '35px', left: '5px', width: '30px', height: '25px', background: '#3498DB', borderRadius: '4px' }} />
+                    {/* Coins */}
+                    {coins.map(c => !c.collected && (
+                      <div key={c.id} className="absolute coin-spin" style={{ left: c.x, top: c.y, width: c.width, height: c.height, perspective: '1000px' }}>
+                         <div className="w-full h-full bg-yellow-400 rounded-full border-2 border-yellow-600 shadow-md"/>
+                      </div>
+                    ))}
+                    
+                    {/* Enemies */}
+                    {enemies.map(e => (
+                       <div key={e.id} className="absolute" style={{ left: e.x, top: e.y, width: e.width, height: e.height }}>
+                            <div className="w-full h-full bg-red-600 rounded-md border-2 border-red-800 animate-pulse" />
+                       </div>
+                    ))}
+
+                    {/* Prince */}
+                    <div className="absolute" style={{ left: initialLevel.prince.x, top: initialLevel.prince.y, width: initialLevel.prince.width, height: initialLevel.prince.height }}>
+                        {/* Crown */}
+                        <div className="absolute" style={{ top: 0, left: '5px', width: '30px', height: '15px', background: 'gold', clipPath: 'polygon(0 100%, 20% 0, 50% 50%, 80% 0, 100% 100%)' }} />
+                        {/* Head */}
+                        <div className="absolute" style={{ top: '15px', left: '10px', width: '20px', height: '20px', background: '#FFDAB9', borderRadius: '4px' }} />
+                        {/* Body */}
+                        <div className="absolute" style={{ top: '35px', left: '5px', width: '30px', height: '25px', background: '#3498DB', borderRadius: '4px' }} />
+                    </div>
                 </div>
             </div>
-        </div>
+          </div>
         </div>
     </div>
   );
 }
-
-    
