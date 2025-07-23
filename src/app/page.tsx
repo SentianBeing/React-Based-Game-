@@ -8,9 +8,9 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Award, Coins, HeartCrack, ArrowLeft, ArrowRight, ArrowUp } from 'lucide-react';
 
 // Game Constants
-const GAME_ASPECT_RATIO = 4 / 3;
-const BASE_GAME_WIDTH = 800;
-const BASE_GAME_HEIGHT = 600;
+const GAME_ASPECT_RATIO = 1;
+const BASE_GAME_WIDTH = 520;
+const BASE_GAME_HEIGHT = 520;
 const GRAVITY = 0.5;
 const PLAYER_SPEED = 5;
 const JUMP_STRENGTH = 12;
@@ -45,29 +45,29 @@ interface Coin extends GameObject {
 
 interface Platform extends GameObject {}
 
-// Level Data
+// Level Data, adjusted for new world size
 const initialLevel = {
   platforms: [
-    { id: 1, x: 0, y: 550, width: 800, height: 50 },
-    { id: 2, x: 900, y: 550, width: 600, height: 50 },
-    { id: 3, x: 1600, y: 450, width: 200, height: 20 },
-    { id: 4, x: 1900, y: 350, width: 200, height: 20 },
-    { id: 5, x: 2200, y: 550, width: 800, height: 50 },
-    { id: 6, x: 2500, y: 400, width: 150, height: 20 },
-    { id: 7, x: 3100, y: 550, width: 1000, height: 50 },
+    { id: 1, x: 0, y: 470, width: 520, height: 50 },
+    { id: 2, x: 600, y: 470, width: 400, height: 50 },
+    { id: 3, x: 1100, y: 380, width: 200, height: 20 },
+    { id: 4, x: 1400, y: 300, width: 200, height: 20 },
+    { id: 5, x: 1700, y: 470, width: 600, height: 50 },
+    { id: 6, x: 2000, y: 350, width: 150, height: 20 },
+    { id: 7, x: 2400, y: 470, width: 800, height: 50 },
   ],
   coins: [
-    { id: 1, x: 1000, y: 500, width: 25, height: 25, collected: false },
-    { id: 2, x: 1650, y: 400, width: 25, height: 25, collected: false },
-    { id: 3, x: 1950, y: 300, width: 25, height: 25, collected: false },
-    { id: 4, x: 2550, y: 350, width: 25, height: 25, collected: false },
-    { id: 5, x: 2800, y: 500, width: 25, height: 25, collected: false },
+    { id: 1, x: 700, y: 420, width: 25, height: 25, collected: false },
+    { id: 2, x: 1150, y: 330, width: 25, height: 25, collected: false },
+    { id: 3, x: 1450, y: 250, width: 25, height: 25, collected: false },
+    { id: 4, x: 2050, y: 300, width: 25, height: 25, collected: false },
+    { id: 5, x: 2200, y: 420, width: 25, height: 25, collected: false },
   ],
   enemies: [
-    { id: 1, x: 1100, y: 510, width: 40, height: 40, vx: 1, initialX: 1100, range: 200 },
-    { id: 2, x: 2600, y: 510, width: 40, height: 40, vx: -1, initialX: 2600, range: 150 },
+    { id: 1, x: 800, y: 430, width: 40, height: 40, vx: 1, initialX: 800, range: 150 },
+    { id: 2, x: 1900, y: 430, width: 40, height: 40, vx: -1, initialX: 1900, range: 150 },
   ],
-  prince: { id: 1, x: 3800, y: 490, width: 40, height: 60 },
+  prince: { id: 1, x: 2900, y: 410, width: 40, height: 60 },
 };
 
 const createInitialPlayer = (): Player => ({
@@ -122,15 +122,15 @@ export default function PankhusQuest() {
         const parent = gameContainerRef.current.parentElement;
         if (!parent) return;
 
-        const { width, height } = parent.getBoundingClientRect();
+        const parentWidth = parent.clientWidth;
+        const parentHeight = parent.clientHeight;
         
-        let newWidth = width;
-        let newHeight = height;
+        let newWidth = parentWidth;
+        let newHeight = newWidth / GAME_ASPECT_RATIO;
 
-        if (width / height > GAME_ASPECT_RATIO) {
-            newWidth = height * GAME_ASPECT_RATIO;
-        } else {
-            newHeight = width / GAME_ASPECT_RATIO;
+        if (newHeight > parentHeight) {
+            newHeight = parentHeight;
+            newWidth = newHeight * GAME_ASPECT_RATIO;
         }
 
         setGameDimensions({
@@ -252,7 +252,7 @@ export default function PankhusQuest() {
     });
 
     gameLoopRef.current = requestAnimationFrame(gameLoop);
-  }, [gameState, player.x, enemies, resetGame]);
+  }, [gameState, player.x, enemies]);
 
   useEffect(() => {
     if (gameState === 'playing') {
@@ -277,8 +277,10 @@ export default function PankhusQuest() {
   const scale = gameDimensions.width / BASE_GAME_WIDTH;
 
   return (
-    <main className="flex flex-col items-center justify-center font-headline bg-background text-foreground h-screen p-2">
-        <h1 className="text-3xl md:text-4xl font-bold shrink-0 my-2">Pankhu's Quest</h1>
+    <main className="flex flex-col items-center justify-center font-headline bg-background text-foreground min-h-screen h-full p-2 md:p-4 overflow-hidden">
+        <header className="shrink-0 w-full text-center">
+            <h1 className="text-3xl md:text-4xl font-bold my-2">Pankhu's Quest</h1>
+        </header>
         <div 
           className="relative w-full flex-1 flex items-center justify-center"
         >
@@ -349,7 +351,7 @@ export default function PankhusQuest() {
                     className="absolute inset-0 bg-repeat-x"
                     style={{
                         backgroundImage: 'url(\'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200"><rect width="200" height="200" fill="none"/><path d="M-20 150 C 30 100, 70 100, 120 150 S 170 200, 220 150" stroke="%2385c1e9" stroke-width="10" fill="none"/></svg>\')',
-                        backgroundPosition: `${-cameraX * 0.3}px 250px`,
+                        backgroundPosition: `${-cameraX * 0.3}px 150px`,
                         backgroundSize: '300px 200px',
                         opacity: 0.7
                     }}
@@ -409,6 +411,9 @@ export default function PankhusQuest() {
 
                     {/* Prince */}
                     <div className="absolute" style={{ left: initialLevel.prince.x, top: initialLevel.prince.y, width: initialLevel.prince.width, height: initialLevel.prince.height }}>
+                         <div className="absolute -top-5 left-1/2 -translate-x-1/2 bg-black/50 text-white text-xs px-2 py-1 rounded">
+                                Karthik
+                         </div>
                         {/* Crown */}
                         <div className="absolute" style={{ top: 0, left: '5px', width: '30px', height: '15px', background: 'gold', clipPath: 'polygon(0 100%, 20% 0, 50% 50%, 80% 0, 100% 100%)' }} />
                         {/* Head */}
@@ -423,8 +428,8 @@ export default function PankhusQuest() {
 
         {/* Mobile Controls */}
         {isMobile && gameState === 'playing' && (
-            <div className="absolute bottom-4 left-4 right-4 flex justify-between items-center z-20">
-                <div className="flex gap-4">
+            <div className="absolute bottom-4 left-4 right-4 flex justify-between items-center z-20 pointer-events-none">
+                <div className="flex gap-2 pointer-events-auto">
                     <Button 
                         size="lg" 
                         className="w-16 h-16 rounded-full opacity-80"
@@ -446,16 +451,18 @@ export default function PankhusQuest() {
                         <ArrowRight className="w-8 h-8"/>
                     </Button>
                 </div>
-                <Button 
-                    size="lg" 
-                    className="w-20 h-20 rounded-full opacity-80"
-                    onTouchStart={() => handleTouchStart(' ')}
-                    onTouchEnd={() => handleTouchEnd(' ')}
-                    onMouseDown={() => handleTouchStart(' ')}
-                    onMouseUp={() => handleTouchEnd(' ')}
-                >
-                    <ArrowUp className="w-10 h-10" />
-                </Button>
+                <div className="pointer-events-auto">
+                    <Button 
+                        size="lg" 
+                        className="w-20 h-20 rounded-full opacity-80"
+                        onTouchStart={() => handleTouchStart(' ')}
+                        onTouchEnd={() => handleTouchEnd(' ')}
+                        onMouseDown={() => handleTouchStart(' ')}
+                        onMouseUp={() => handleTouchEnd(' ')}
+                    >
+                        <ArrowUp className="w-10 h-10" />
+                    </Button>
+                </div>
             </div>
         )}
     </main>
