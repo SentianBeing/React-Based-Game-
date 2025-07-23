@@ -252,7 +252,7 @@ export default function PankhusQuest() {
     });
 
     gameLoopRef.current = requestAnimationFrame(gameLoop);
-  }, [gameState, player.x, enemies]);
+  }, [gameState, player.x, enemies, resetGame]);
 
   useEffect(() => {
     if (gameState === 'playing') {
@@ -277,7 +277,7 @@ export default function PankhusQuest() {
   const scale = gameDimensions.width / BASE_GAME_WIDTH;
 
   return (
-    <main className="flex flex-col items-center justify-center font-headline bg-background text-foreground h-screen overflow-hidden p-2">
+    <main className="flex flex-col items-center justify-center font-headline bg-background text-foreground h-screen p-2">
         <h1 className="text-3xl md:text-4xl font-bold shrink-0 my-2">Pankhu's Quest</h1>
         <div 
           className="relative w-full flex-1 flex items-center justify-center"
@@ -290,12 +290,12 @@ export default function PankhusQuest() {
             <div style={{ transform: `scale(${scale})`, transformOrigin: 'top left', width: BASE_GAME_WIDTH, height: BASE_GAME_HEIGHT, imageRendering: 'pixelated' }}>
                 <AnimatePresence>
                     {gameState !== 'playing' && (
-                        <motion.div 
-                          initial={{ opacity: 0 }}
-                          animate={{ opacity: 1 }}
-                          exit={{ opacity: 0 }}
-                          className="absolute inset-0 z-20 flex items-center justify-center"
-                          style={{transform: `scale(${1/scale})`, transformOrigin: 'top left'}}
+                         <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            className="absolute inset-0 z-20 flex items-center justify-center"
+                            style={{transform: `scale(${1/scale})`, transformOrigin: 'top left'}}
                         >
                            <div className="absolute inset-0 bg-black/70 flex items-center justify-center p-4">
                               <Card className="text-center w-full max-w-sm">
@@ -378,7 +378,7 @@ export default function PankhusQuest() {
                           className="w-full h-full" 
                           style={{transform: `scaleX(${player.direction === 'right' ? 1 : -1})`}}
                         >
-                            <div className="absolute -top-5 left-1/2 -translate-x-1/2 bg-black/50 text-white text-xs px-2 py-1 rounded">
+                           <div className="absolute -top-5 left-1/2 -translate-x-1/2 bg-black/50 text-white text-xs px-2 py-1 rounded">
                                 Pankhu
                             </div>
                             {/* Head */}
