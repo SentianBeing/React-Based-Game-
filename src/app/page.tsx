@@ -31,6 +31,7 @@ interface Player extends GameObject {
   vy: number;
   onGround: boolean;
   direction: 'left' | 'right';
+  isWalking: boolean;
 }
 
 interface Enemy extends GameObject {
@@ -80,7 +81,55 @@ const createInitialPlayer = (): Player => ({
   vy: 0,
   onGround: false,
   direction: 'right',
+  isWalking: false,
 });
+
+const PlayerSprite = ({ isWalking, onGround }: { isWalking: boolean, onGround: boolean }) => {
+  const walkingClass = isWalking && onGround ? 'animate-walk' : '';
+  return (
+    <div className={`relative w-full h-full ${walkingClass}`}>
+      <style jsx>{`
+        .animate-walk .leg {
+          animation: walk-cycle 0.4s infinite linear;
+        }
+        .animate-walk .leg-2 {
+          animation-delay: 0.2s;
+        }
+        @keyframes walk-cycle {
+          0%, 100% { transform: rotate(0deg); }
+          50% { transform: rotate(20deg); }
+        }
+      `}</style>
+      {/* Head */}
+      <div className="absolute" style={{ top: 0, left: '5px', width: '20px', height: '20px', background: '#FFDAB9', borderRadius: '4px' }}>
+        {/* Hair */}
+        <div className="absolute -top-1 w-full h-3 bg-black" style={{ clipPath: 'polygon(0 100%, 100% 100%, 100% 0, 80% 10%, 20% 10%, 0 0)' }}></div>
+      </div>
+      {/* Dress */}
+      <div className="absolute" style={{ top: '20px', left: '0px', width: '30px', height: '30px', background: 'black', clipPath: 'polygon(20% 0, 80% 0, 100% 100%, 0% 100%)' }} />
+      {/* Legs */}
+       <div className="leg absolute bottom-0 left-[7px] w-2 h-3 bg-black origin-top-left"></div>
+       <div className="leg leg-2 absolute bottom-0 left-[21px] w-2 h-3 bg-black origin-top-left"></div>
+    </div>
+  );
+};
+
+
+const PrinceSprite = () => {
+    return (
+        <div className="relative w-full h-full">
+            {/* Crown */}
+            <div className="absolute" style={{ top: 0, left: '5px', width: '30px', height: '15px', background: 'gold', clipPath: 'polygon(0 100%, 20% 0, 50% 50%, 80% 0, 100% 100%)' }} />
+            {/* Head */}
+            <div className="absolute" style={{ top: '15px', left: '10px', width: '20px', height: '20px', background: '#FFDAB9', borderRadius: '4px' }}>
+                {/* Hair */}
+                 <div className="absolute -top-1 w-full h-3 bg-black rounded-t-sm"></div>
+            </div>
+            {/* Body */}
+            <div className="absolute" style={{ top: '35px', left: '5px', width: '30px', height: '25px', background: '#3498DB', borderRadius: '4px' }} />
+        </div>
+    );
+}
 
 // Game Component
 export default function PankhusQuest() {
@@ -166,13 +215,16 @@ export default function PankhusQuest() {
     setPlayer(p => {
       let newVx = 0;
       let newDirection = p.direction;
+      let isWalking = false;
       if (keysPressed.current['ArrowLeft'] || keysPressed.current['a']) {
         newVx = -PLAYER_SPEED;
         newDirection = 'left';
+        isWalking = true;
       }
       if (keysPressed.current['ArrowRight'] || keysPressed.current['d']) {
         newVx = PLAYER_SPEED;
         newDirection = 'right';
+        isWalking = true;
       }
 
       let newVy = p.vy + GRAVITY;
@@ -206,7 +258,7 @@ export default function PankhusQuest() {
         setGameState('gameOver');
       }
 
-      return { ...p, x: newX, y: newY, vx: newVx, vy: newVy, onGround, direction: newDirection };
+      return { ...p, x: newX, y: newY, vx: newVx, vy: newVy, onGround, direction: newDirection, isWalking };
     });
 
     // Enemy logic
@@ -382,10 +434,7 @@ export default function PankhusQuest() {
                            <div className="absolute -top-5 left-1/2 -translate-x-1/2 bg-black/50 text-white text-xs px-2 py-1 rounded">
                                 Pankhu
                             </div>
-                            {/* Head */}
-                            <div className="absolute" style={{ top: 0, left: '5px', width: '20px', height: '20px', background: '#FFDAB9', borderRadius: '4px' }} /> 
-                            {/* Dress */}
-                            <div className="absolute" style={{ top: '20px', left: '0px', width: '30px', height: '30px', background: 'hotpink', clipPath: 'polygon(20% 0, 80% 0, 100% 100%, 0% 100%)', borderRadius: '4px' }} />
+                           <PlayerSprite isWalking={player.isWalking} onGround={player.onGround} />
                         </div>
                     </div>
 
@@ -413,12 +462,7 @@ export default function PankhusQuest() {
                          <div className="absolute -top-5 left-1/2 -translate-x-1/2 bg-black/50 text-white text-xs px-2 py-1 rounded">
                                 Karthik
                          </div>
-                        {/* Crown */}
-                        <div className="absolute" style={{ top: 0, left: '5px', width: '30px', height: '15px', background: 'gold', clipPath: 'polygon(0 100%, 20% 0, 50% 50%, 80% 0, 100% 100%)' }} />
-                        {/* Head */}
-                        <div className="absolute" style={{ top: '15px', left: '10px', width: '20px', height: '20px', background: '#FFDAB9', borderRadius: '4px' }} />
-                        {/* Body */}
-                        <div className="absolute" style={{ top: '35px', left: '5px', width: '30px', height: '25px', background: '#3498DB', borderRadius: '4px' }} />
+                        <PrinceSprite />
                     </div>
                 </div>
             </div>
@@ -469,5 +513,7 @@ export default function PankhusQuest() {
     
 
 
+
+    
 
     
