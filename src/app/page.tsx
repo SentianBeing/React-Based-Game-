@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Award, Coins, HeartCrack, ArrowLeft, ArrowRight, ArrowUp } from 'lucide-react';
+import Image from 'next/image';
 
 // Game Constants
 const GAME_ASPECT_RATIO = 1;
@@ -87,90 +88,20 @@ const createInitialPlayer = (): Player => ({
   walkFrame: 0,
 });
 
-const PixelatedContainer = ({ children }: { children: React.ReactNode }) => (
-    <div className="relative w-full h-full" style={{ imageRendering: 'pixelated' }}>
-        {children}
-    </div>
-);
-
 const PankhuSpriteIdle = () => (
-    <PixelatedContainer>
-        <div className="absolute w-4 h-4" style={{ top: '0px', left: '12px', background: '#000' }}></div>
-        <div className="absolute w-20 h-4" style={{ top: '4px', left: '4px', background: '#000' }}></div>
-        <div className="absolute w-4 h-4" style={{ top: '8px', left: '0px', background: '#000' }}></div>
-        <div className="absolute w-4 h-24" style={{ top: '8px', left: '28px', background: '#000' }}></div>
-        <div className="absolute w-20 h-4" style={{ top: '8px', left: '4px', background: '#FFDAB9' }}></div>
-        <div className="absolute w-4 h-4" style={{ top: '12px', left: '8px', background: '#8B4513' }}></div>
-        <div className="absolute w-4 h-4" style={{ top: '12px', left: '16px', background: '#8B4513' }}></div>
-        <div className="absolute w-24 h-4" style={{ top: '16px', left: '0px', background: '#FFDAB9' }}></div>
-        <div className="absolute w-8 h-4" style={{ top: '20px', left: '12px', background: '#FFDAB9' }}></div>
-        <div className="absolute w-24 h-4" style={{ top: '20px', left: '4px', background: '#000' }}></div>
-        <div className="absolute w-32 h-20" style={{ top: '24px', left: '0px', background: '#000' }}></div>
-        <div className="absolute w-8 h-8" style={{ top: '44px', left: '4px', background: '#000' }}></div>
-        <div className="absolute w-8 h-8" style={{ top: '44px', left: '20px', background: '#000' }}></div>
-        <div className="absolute w-4 h-4" style={{ top: '44px', left: '8px', background: '#FFDAB9' }}></div>
-        <div className="absolute w-4 h-4" style={{ top: '44px', left: '20px', background: '#FFDAB9' }}></div>
-    </PixelatedContainer>
+    <Image src="https://placehold.co/32x48.png" alt="Pankhu Idle" layout="fill" objectFit="contain" data-ai-hint="pixelated princess idle" />
 );
 
 const PankhuSpriteWalk1 = () => (
-    <PixelatedContainer>
-        <div className="absolute w-4 h-4" style={{ top: '0px', left: '12px', background: '#000' }}></div>
-        <div className="absolute w-20 h-4" style={{ top: '4px', left: '4px', background: '#000' }}></div>
-        <div className="absolute w-4 h-4" style={{ top: '8px', left: '0px', background: '#000' }}></div>
-        <div className="absolute w-4 h-24" style={{ top: '8px', left: '28px', background: '#000' }}></div>
-        <div className="absolute w-20 h-4" style={{ top: '8px', left: '4px', background: '#FFDAB9' }}></div>
-        <div className="absolute w-4 h-4" style={{ top: '12px', left: '8px', background: '#8B4513' }}></div>
-        <div className="absolute w-4 h-4" style={{ top: '12px', left: '16px', background: '#8B4513' }}></div>
-        <div className="absolute w-24 h-4" style={{ top: '16px', left: '0px', background: '#FFDAB9' }}></div>
-        <div className="absolute w-8 h-4" style={{ top: '20px', left: '12px', background: '#FFDAB9' }}></div>
-        <div className="absolute w-24 h-4" style={{ top: '20px', left: '4px', background: '#000' }}></div>
-        <div className="absolute w-32 h-20" style={{ top: '24px', left: '0px', background: '#000' }}></div>
-        <div className="absolute w-8 h-4" style={{ top: '44px', left: '0px', background: '#000' }}></div>
-        <div className="absolute w-4 h-4" style={{ top: '44px', left: '4px', background: '#FFDAB9' }}></div>
-        <div className="absolute w-8 h-8" style={{ top: '44px', left: '16px', background: '#000' }}></div>
-        <div className="absolute w-4 h-4" style={{ top: '44px', left: '20px', background: '#FFDAB9' }}></div>
-    </PixelatedContainer>
+    <Image src="https://placehold.co/32x48.png" alt="Pankhu Walk 1" layout="fill" objectFit="contain" data-ai-hint="pixelated princess walk" />
 );
 
 const PankhuSpriteWalk2 = () => (
-     <PixelatedContainer>
-        <div className="absolute w-4 h-4" style={{ top: '0px', left: '12px', background: '#000' }}></div>
-        <div className="absolute w-20 h-4" style={{ top: '4px', left: '4px', background: '#000' }}></div>
-        <div className="absolute w-4 h-4" style={{ top: '8px', left: '0px', background: '#000' }}></div>
-        <div className="absolute w-4 h-24" style={{ top: '8px', left: '28px', background: '#000' }}></div>
-        <div className="absolute w-20 h-4" style={{ top: '8px', left: '4px', background: '#FFDAB9' }}></div>
-        <div className="absolute w-4 h-4" style={{ top: '12px', left: '8px', background: '#8B4513' }}></div>
-        <div className="absolute w-4 h-4" style={{ top: '12px', left: '16px', background: '#8B4513' }}></div>
-        <div className="absolute w-24 h-4" style={{ top: '16px', left: '0px', background: '#FFDAB9' }}></div>
-        <div className="absolute w-8 h-4" style={{ top: '20px', left: '12px', background: '#FFDAB9' }}></div>
-        <div className="absolute w-24 h-4" style={{ top: '20px', left: '4px', background: '#000' }}></div>
-        <div className="absolute w-32 h-20" style={{ top: '24px', left: '0px', background: '#000' }}></div>
-        <div className="absolute w-8 h-8" style={{ top: '44px', left: '8px', background: '#000' }}></div>
-        <div className="absolute w-4 h-4" style={{ top: '44px', left: '12px', background: '#FFDAB9' }}></div>
-        <div className="absolute w-8 h-4" style={{ top: '44px', left: '24px', background: '#000' }}></div>
-        <div className="absolute w-4 h-4" style={{ top: '44px', left: '24px', background: '#FFDAB9' }}></div>
-    </PixelatedContainer>
+    <Image src="https://placehold.co/32x48.png" alt="Pankhu Walk 2" layout="fill" objectFit="contain" data-ai-hint="pixelated princess walk" />
 );
 
 const PankhuSpriteJump = () => (
-    <PixelatedContainer>
-        <div className="absolute w-4 h-4" style={{ top: '0px', left: '12px', background: '#000' }}></div>
-        <div className="absolute w-20 h-4" style={{ top: '4px', left: '4px', background: '#000' }}></div>
-        <div className="absolute w-4 h-12" style={{ top: '8px', left: '0px', background: '#000' }}></div>
-        <div className="absolute w-4 h-12" style={{ top: '8px', left: '28px', background: '#000' }}></div>
-        <div className="absolute w-20 h-4" style={{ top: '8px', left: '4px', background: '#FFDAB9' }}></div>
-        <div className="absolute w-4 h-4" style={{ top: '12px', left: '8px', background: '#8B4513' }}></div>
-        <div className="absolute w-4 h-4" style={{ top: '12px', left: '16px', background: '#8B4513' }}></div>
-        <div className="absolute w-24 h-4" style={{ top: '16px', left: '0px', background: '#FFDAB9' }}></div>
-        <div className="absolute w-8 h-4" style={{ top: '20px', left: '12px', background: '#FFDAB9' }}></div>
-        <div className="absolute w-24 h-4" style={{ top: '20px', left: '4px', background: '#000' }}></div>
-        <div className="absolute w-32 h-16" style={{ top: '24px', left: '0px', background: '#000' }}></div>
-        <div className="absolute w-8 h-4" style={{ top: '40px', left: '4px', background: '#000' }}></div>
-        <div className="absolute w-4 h-4" style={{ top: '40px', left: '8px', background: '#FFDAB9' }}></div>
-        <div className="absolute w-8 h-4" style={{ top: '40px', left: '20px', background: '#000' }}></div>
-        <div className="absolute w-4 h-4" style={{ top: '40px', left: '20px', background: '#FFDAB9' }}></div>
-    </PixelatedContainer>
+    <Image src="https://placehold.co/32x48.png" alt="Pankhu Jump" layout="fill" objectFit="contain" data-ai-hint="pixelated princess jump" />
 );
 
 
@@ -186,19 +117,7 @@ const PlayerSprite = ({ isWalking, onGround, walkFrame }: { isWalking: boolean, 
 
 const PrinceSprite = () => {
     return (
-        <PixelatedContainer>
-            <div className="absolute w-4 h-4" style={{ top: '0px', left: '14px', background: 'yellow' }}></div>
-            <div className="absolute w-4 h-4" style={{ top: '4px', left: '10px', background: 'yellow' }}></div>
-            <div className="absolute w-4 h-4" style={{ top: '4px', left: '18px', background: 'yellow' }}></div>
-            <div className="absolute w-24 h-4" style={{ top: '8px', left: '4px', background: '#000' }}></div>
-            <div className="absolute w-20 h-4" style={{ top: '12px', left: '6px', background: '#FFDAB9' }}></div>
-            <div className="absolute w-4 h-4" style={{ top: '16px', left: '10px', background: '#8B4513' }}></div>
-            <div className="absolute w-4 h-4" style={{ top: '16px', left: '18px', background: '#8B4513' }}></div>
-            <div className="absolute w-24 h-4" style={{ top: '20px', left: '4px', background: '#FFDAB9' }}></div>
-            <div className="absolute w-24 h-32" style={{ top: '24px', left: '4px', background: '#3498DB' }}></div>
-            <div className="absolute w-8 h-8" style={{ top: '56px', left: '8px', background: '#000' }}></div>
-            <div className="absolute w-8 h-8" style={{ top: '56px', left: '16px', background: '#000' }}></div>
-        </PixelatedContainer>
+       <Image src="https://placehold.co/40x60.png" alt="Prince" layout="fill" objectFit="contain" data-ai-hint="pixelated prince" />
     );
 }
 
@@ -479,7 +398,7 @@ export default function PankhusQuest() {
             style={{ width: gameDimensions.width, height: gameDimensions.height }} 
             className="relative overflow-hidden bg-primary rounded-lg shadow-2xl border-4 border-foreground"
           >
-            <div style={{ transform: `scale(${scale})`, transformOrigin: 'top left', width: BASE_GAME_WIDTH, height: BASE_GAME_HEIGHT, imageRendering: 'pixelated' }}>
+            <div style={{ transform: `scale(${scale})`, transformOrigin: 'top left', width: BASE_GAME_WIDTH, height: BASE_GAME_HEIGHT }}>
                 <AnimatePresence>
                     {gameState !== 'playing' && (
                          <motion.div
@@ -566,10 +485,10 @@ export default function PankhusQuest() {
                       }}
                     >
                         <div 
-                          className="w-full h-full" 
+                          className="w-full h-full relative" 
                           style={{transform: `scaleX(${player.direction === 'right' ? 1 : -1})`}}
                         >
-                           <div className="absolute -top-5 left-1/2 -translate-x-1/2 bg-black/50 text-white text-xs px-2 py-1 rounded">
+                           <div className="absolute -top-5 left-1/2 -translate-x-1/2 bg-black/50 text-white text-xs px-2 py-1 rounded" style={{ transform: `translateX(-50%) scaleX(${player.direction === 'right' ? 1 : -1})` }}>
                                 Pankhu
                             </div>
                            <PlayerSprite isWalking={player.isWalking} onGround={player.onGround} walkFrame={player.walkFrame} />
@@ -651,3 +570,5 @@ export default function PankhusQuest() {
     </main>
   );
 }
+
+    
