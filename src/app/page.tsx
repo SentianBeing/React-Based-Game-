@@ -14,6 +14,7 @@ const BASE_GAME_HEIGHT = 520;
 const GRAVITY = 0.5;
 const PLAYER_SPEED = 5;
 const JUMP_STRENGTH = 12;
+const WALK_ANIMATION_SPEED = 8; // Lower is faster
 
 // Types
 type GameState = 'start' | 'playing' | 'gameOver' | 'win';
@@ -94,76 +95,81 @@ const PixelatedContainer = ({ children }: { children: React.ReactNode }) => (
 
 const PankhuSpriteIdle = () => (
     <PixelatedContainer>
-        {/* Head */}
-        <div className="absolute w-20 h-20 bg-[#FFDAB9]" style={{ top: '0px', left: '6px' }} />
-        {/* Hair */}
-        <div className="absolute w-24 h-8 bg-black" style={{ top: '-4px', left: '4px' }}/>
-        <div className="absolute w-8 h-8 bg-black" style={{ top: '4px', left: '0px' }}/>
-        <div className="absolute w-8 h-8 bg-black" style={{ top: '4px', left: '24px' }}/>
-        {/* Eyes */}
-        <div className="absolute w-4 h-4 bg-black" style={{ top: '8px', left: '10px' }}/>
-        <div className="absolute w-4 h-4 bg-black" style={{ top: '8px', left: '18px' }}/>
-        {/* Dress */}
-        <div className="absolute w-32 h-28 bg-black" style={{ top: '20px', left: '0px' }}/>
-        {/* Legs */}
-        <div className="absolute w-8 h-8 bg-[#FFDAB9]" style={{ top: '48px', left: '8px' }}/>
-        <div className="absolute w-8 h-8 bg-[#FFDAB9]" style={{ top: '48px', left: '18px' }}/>
+        <div className="absolute w-4 h-4" style={{ top: '0px', left: '12px', background: '#000' }}></div>
+        <div className="absolute w-20 h-4" style={{ top: '4px', left: '4px', background: '#000' }}></div>
+        <div className="absolute w-4 h-4" style={{ top: '8px', left: '0px', background: '#000' }}></div>
+        <div className="absolute w-4 h-24" style={{ top: '8px', left: '28px', background: '#000' }}></div>
+        <div className="absolute w-20 h-4" style={{ top: '8px', left: '4px', background: '#FFDAB9' }}></div>
+        <div className="absolute w-4 h-4" style={{ top: '12px', left: '8px', background: '#8B4513' }}></div>
+        <div className="absolute w-4 h-4" style={{ top: '12px', left: '16px', background: '#8B4513' }}></div>
+        <div className="absolute w-24 h-4" style={{ top: '16px', left: '0px', background: '#FFDAB9' }}></div>
+        <div className="absolute w-8 h-4" style={{ top: '20px', left: '12px', background: '#FFDAB9' }}></div>
+        <div className="absolute w-24 h-4" style={{ top: '20px', left: '4px', background: '#000' }}></div>
+        <div className="absolute w-32 h-20" style={{ top: '24px', left: '0px', background: '#000' }}></div>
+        <div className="absolute w-8 h-8" style={{ top: '44px', left: '4px', background: '#000' }}></div>
+        <div className="absolute w-8 h-8" style={{ top: '44px', left: '20px', background: '#000' }}></div>
+        <div className="absolute w-4 h-4" style={{ top: '44px', left: '8px', background: '#FFDAB9' }}></div>
+        <div className="absolute w-4 h-4" style={{ top: '44px', left: '20px', background: '#FFDAB9' }}></div>
     </PixelatedContainer>
 );
 
 const PankhuSpriteWalk1 = () => (
     <PixelatedContainer>
-         {/* Head */}
-        <div className="absolute w-20 h-20 bg-[#FFDAB9]" style={{ top: '0px', left: '6px' }} />
-        {/* Hair */}
-        <div className="absolute w-24 h-8 bg-black" style={{ top: '-4px', left: '4px' }}/>
-        <div className="absolute w-8 h-8 bg-black" style={{ top: '4px', left: '0px' }}/>
-        <div className="absolute w-8 h-8 bg-black" style={{ top: '4px', left: '24px' }}/>
-        {/* Eyes */}
-        <div className="absolute w-4 h-4 bg-black" style={{ top: '8px', left: '10px' }}/>
-        <div className="absolute w-4 h-4 bg-black" style={{ top: '8px', left: '18px' }}/>
-        {/* Dress */}
-        <div className="absolute w-32 h-28 bg-black" style={{ top: '20px', left: '0px' }}/>
-        {/* Legs */}
-        <div className="absolute w-8 h-8 bg-[#FFDAB9]" style={{ top: '48px', left: '4px' }}/>
-        <div className="absolute w-8 h-8 bg-black" style={{ top: '48px', left: '20px' }}/>
+        <div className="absolute w-4 h-4" style={{ top: '0px', left: '12px', background: '#000' }}></div>
+        <div className="absolute w-20 h-4" style={{ top: '4px', left: '4px', background: '#000' }}></div>
+        <div className="absolute w-4 h-4" style={{ top: '8px', left: '0px', background: '#000' }}></div>
+        <div className="absolute w-4 h-24" style={{ top: '8px', left: '28px', background: '#000' }}></div>
+        <div className="absolute w-20 h-4" style={{ top: '8px', left: '4px', background: '#FFDAB9' }}></div>
+        <div className="absolute w-4 h-4" style={{ top: '12px', left: '8px', background: '#8B4513' }}></div>
+        <div className="absolute w-4 h-4" style={{ top: '12px', left: '16px', background: '#8B4513' }}></div>
+        <div className="absolute w-24 h-4" style={{ top: '16px', left: '0px', background: '#FFDAB9' }}></div>
+        <div className="absolute w-8 h-4" style={{ top: '20px', left: '12px', background: '#FFDAB9' }}></div>
+        <div className="absolute w-24 h-4" style={{ top: '20px', left: '4px', background: '#000' }}></div>
+        <div className="absolute w-32 h-20" style={{ top: '24px', left: '0px', background: '#000' }}></div>
+        <div className="absolute w-8 h-4" style={{ top: '44px', left: '0px', background: '#000' }}></div>
+        <div className="absolute w-4 h-4" style={{ top: '44px', left: '4px', background: '#FFDAB9' }}></div>
+        <div className="absolute w-8 h-8" style={{ top: '44px', left: '16px', background: '#000' }}></div>
+        <div className="absolute w-4 h-4" style={{ top: '44px', left: '20px', background: '#FFDAB9' }}></div>
     </PixelatedContainer>
 );
 
 const PankhuSpriteWalk2 = () => (
-    <PixelatedContainer>
-         {/* Head */}
-        <div className="absolute w-20 h-20 bg-[#FFDAB9]" style={{ top: '0px', left: '6px' }} />
-        {/* Hair */}
-        <div className="absolute w-24 h-8 bg-black" style={{ top: '-4px', left: '4px' }}/>
-        <div className="absolute w-8 h-8 bg-black" style={{ top: '4px', left: '0px' }}/>
-        <div className="absolute w-8 h-8 bg-black" style={{ top: '4px', left: '24px' }}/>
-        {/* Eyes */}
-        <div className="absolute w-4 h-4 bg-black" style={{ top: '8px', left: '10px' }}/>
-        <div className="absolute w-4 h-4 bg-black" style={{ top: '8px', left: '18px' }}/>
-        {/* Dress */}
-        <div className="absolute w-32 h-28 bg-black" style={{ top: '20px', left: '0px' }}/>
-        {/* Legs */}
-        <div className="absolute w-8 h-8 bg-black" style={{ top: '48px', left: '8px' }}/>
-        <div className="absolute w-8 h-8 bg-[#FFDAB9]" style={{ top: '48px', left: '22px' }}/>
+     <PixelatedContainer>
+        <div className="absolute w-4 h-4" style={{ top: '0px', left: '12px', background: '#000' }}></div>
+        <div className="absolute w-20 h-4" style={{ top: '4px', left: '4px', background: '#000' }}></div>
+        <div className="absolute w-4 h-4" style={{ top: '8px', left: '0px', background: '#000' }}></div>
+        <div className="absolute w-4 h-24" style={{ top: '8px', left: '28px', background: '#000' }}></div>
+        <div className="absolute w-20 h-4" style={{ top: '8px', left: '4px', background: '#FFDAB9' }}></div>
+        <div className="absolute w-4 h-4" style={{ top: '12px', left: '8px', background: '#8B4513' }}></div>
+        <div className="absolute w-4 h-4" style={{ top: '12px', left: '16px', background: '#8B4513' }}></div>
+        <div className="absolute w-24 h-4" style={{ top: '16px', left: '0px', background: '#FFDAB9' }}></div>
+        <div className="absolute w-8 h-4" style={{ top: '20px', left: '12px', background: '#FFDAB9' }}></div>
+        <div className="absolute w-24 h-4" style={{ top: '20px', left: '4px', background: '#000' }}></div>
+        <div className="absolute w-32 h-20" style={{ top: '24px', left: '0px', background: '#000' }}></div>
+        <div className="absolute w-8 h-8" style={{ top: '44px', left: '8px', background: '#000' }}></div>
+        <div className="absolute w-4 h-4" style={{ top: '44px', left: '12px', background: '#FFDAB9' }}></div>
+        <div className="absolute w-8 h-4" style={{ top: '44px', left: '24px', background: '#000' }}></div>
+        <div className="absolute w-4 h-4" style={{ top: '44px', left: '24px', background: '#FFDAB9' }}></div>
     </PixelatedContainer>
 );
 
 const PankhuSpriteJump = () => (
     <PixelatedContainer>
-         {/* Head */}
-        <div className="absolute w-20 h-20 bg-[#FFDAB9]" style={{ top: '0px', left: '6px' }} />
-        {/* Hair */}
-        <div className="absolute w-24 h-8 bg-black" style={{ top: '-4px', left: '4px' }}/>
-        <div className="absolute w-8 h-8 bg-black" style={{ top: '4px', left: '0px' }}/>
-        <div className="absolute w-8 h-8 bg-black" style={{ top: '4px', left: '24px' }}/>
-        {/* Eyes */}
-        <div className="absolute w-4 h-4 bg-black" style={{ top: '8px', left: '10px' }}/>
-        <div className="absolute w-4 h-4 bg-black" style={{ top: '8px', left: '18px' }}/>
-        {/* Dress */}
-        <div className="absolute w-32 h-24 bg-black" style={{ top: '20px', left: '0px' }}/>
-        {/* Legs */}
-        <div className="absolute w-8 h-8 bg-[#FFDAB9]" style={{ top: '44px', left: '12px' }}/>
+        <div className="absolute w-4 h-4" style={{ top: '0px', left: '12px', background: '#000' }}></div>
+        <div className="absolute w-20 h-4" style={{ top: '4px', left: '4px', background: '#000' }}></div>
+        <div className="absolute w-4 h-12" style={{ top: '8px', left: '0px', background: '#000' }}></div>
+        <div className="absolute w-4 h-12" style={{ top: '8px', left: '28px', background: '#000' }}></div>
+        <div className="absolute w-20 h-4" style={{ top: '8px', left: '4px', background: '#FFDAB9' }}></div>
+        <div className="absolute w-4 h-4" style={{ top: '12px', left: '8px', background: '#8B4513' }}></div>
+        <div className="absolute w-4 h-4" style={{ top: '12px', left: '16px', background: '#8B4513' }}></div>
+        <div className="absolute w-24 h-4" style={{ top: '16px', left: '0px', background: '#FFDAB9' }}></div>
+        <div className="absolute w-8 h-4" style={{ top: '20px', left: '12px', background: '#FFDAB9' }}></div>
+        <div className="absolute w-24 h-4" style={{ top: '20px', left: '4px', background: '#000' }}></div>
+        <div className="absolute w-32 h-16" style={{ top: '24px', left: '0px', background: '#000' }}></div>
+        <div className="absolute w-8 h-4" style={{ top: '40px', left: '4px', background: '#000' }}></div>
+        <div className="absolute w-4 h-4" style={{ top: '40px', left: '8px', background: '#FFDAB9' }}></div>
+        <div className="absolute w-8 h-4" style={{ top: '40px', left: '20px', background: '#000' }}></div>
+        <div className="absolute w-4 h-4" style={{ top: '40px', left: '20px', background: '#FFDAB9' }}></div>
     </PixelatedContainer>
 );
 
@@ -181,26 +187,17 @@ const PlayerSprite = ({ isWalking, onGround, walkFrame }: { isWalking: boolean, 
 const PrinceSprite = () => {
     return (
         <PixelatedContainer>
-            {/* Crown */}
-            <div className="absolute w-4 h-4 bg-yellow-400" style={{top: '0px', left: '14px'}}></div>
-            <div className="absolute w-4 h-4 bg-yellow-400" style={{top: '4px', left: '10px'}}></div>
-            <div className="absolute w-4 h-4 bg-yellow-400" style={{top: '4px', left: '18px'}}></div>
-
-            {/* Head */}
-            <div className="absolute w-20 h-20 bg-[#FFDAB9]" style={{ top: '8px', left: '6px' }} />
-
-            {/* Hair */}
-            <div className="absolute w-24 h-8 bg-black" style={{ top: '4px', left: '4px' }} />
-            
-            {/* Eyes */}
-            <div className="absolute w-4 h-4 bg-black" style={{ top: '16px', left: '10px' }}/>
-            <div className="absolute w-4 h-4 bg-black" style={{ top: '16px', left: '18px' }}/>
-            
-            {/* Body */}
-            <div className="absolute w-24 h-32 bg-[#3498DB]" style={{ top: '28px', left: '4px' }}/>
-             {/* Legs */}
-            <div className="absolute w-8 h-8 bg-black" style={{ top: '60px', left: '8px' }}/>
-            <div className="absolute w-8 h-8 bg-black" style={{ top: '60px', left: '18px' }}/>
+            <div className="absolute w-4 h-4" style={{ top: '0px', left: '14px', background: 'yellow' }}></div>
+            <div className="absolute w-4 h-4" style={{ top: '4px', left: '10px', background: 'yellow' }}></div>
+            <div className="absolute w-4 h-4" style={{ top: '4px', left: '18px', background: 'yellow' }}></div>
+            <div className="absolute w-24 h-4" style={{ top: '8px', left: '4px', background: '#000' }}></div>
+            <div className="absolute w-20 h-4" style={{ top: '12px', left: '6px', background: '#FFDAB9' }}></div>
+            <div className="absolute w-4 h-4" style={{ top: '16px', left: '10px', background: '#8B4513' }}></div>
+            <div className="absolute w-4 h-4" style={{ top: '16px', left: '18px', background: '#8B4513' }}></div>
+            <div className="absolute w-24 h-4" style={{ top: '20px', left: '4px', background: '#FFDAB9' }}></div>
+            <div className="absolute w-24 h-32" style={{ top: '24px', left: '4px', background: '#3498DB' }}></div>
+            <div className="absolute w-8 h-8" style={{ top: '56px', left: '8px', background: '#000' }}></div>
+            <div className="absolute w-8 h-8" style={{ top: '56px', left: '16px', background: '#000' }}></div>
         </PixelatedContainer>
     );
 }
@@ -234,12 +231,15 @@ export default function PankhusQuest() {
 
   useEffect(() => {
     const checkIsMobile = () => {
-      setIsMobile(window.innerWidth < 768);
+      const isMobileDevice = window.innerWidth < 768;
+      if(isMobile !== isMobileDevice) {
+        setIsMobile(isMobileDevice);
+      }
     };
     checkIsMobile();
     window.addEventListener('resize', checkIsMobile);
     return () => window.removeEventListener('resize', checkIsMobile);
-  }, []);
+  }, [isMobile]);
 
   useEffect(() => {
     const handleResize = () => {
@@ -272,7 +272,10 @@ export default function PankhusQuest() {
   }, []);
   
   useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => { keysPressed.current[e.key] = true; };
+    const handleKeyDown = (e: KeyboardEvent) => { 
+        if(e.key === ' ' || e.key.startsWith('Arrow')) e.preventDefault();
+        keysPressed.current[e.key] = true; 
+    };
     const handleKeyUp = (e: KeyboardEvent) => { keysPressed.current[e.key] = false; };
     window.addEventListener('keydown', handleKeyDown);
     window.addEventListener('keyup', handleKeyUp);
@@ -282,8 +285,24 @@ export default function PankhusQuest() {
     };
   }, []);
 
-  const handleTouchStart = (key: string) => { keysPressed.current[key] = true; };
-  const handleTouchEnd = (key: string) => { keysPressed.current[key] = false; };
+  const handleTouchStart = (key: string) => (e: React.TouchEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    keysPressed.current[key] = true;
+  };
+  const handleTouchEnd = (key: string) => (e: React.TouchEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    keysPressed.current[key] = false;
+  };
+
+  const handleMouseDown = (key: string) => (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    keysPressed.current[key] = true;
+  };
+
+  const handleMouseUp = (key: string) => (e: React.MouseEvent<HTMLButtonElement>) => {
+     e.preventDefault();
+    keysPressed.current[key] = false;
+  }
   
   const gameLoop = useCallback(() => {
     if (gameState !== 'playing') return;
@@ -317,7 +336,7 @@ export default function PankhusQuest() {
       // Update walk animation frame
       if (isWalking && p.onGround) {
         walkFrameCounter.current += 1;
-        if(walkFrameCounter.current > 8) {
+        if(walkFrameCounter.current > WALK_ANIMATION_SPEED) {
              newWalkFrame = (p.walkFrame + 1) % 2;
              walkFrameCounter.current = 0;
         }
@@ -345,12 +364,18 @@ export default function PankhusQuest() {
             newX < platform.x + platform.width &&
             newX + p.width > platform.x &&
             p.y < platform.y + platform.height &&
-            p.y + p.height > platform.y
+            p.y + p.height > platform.y &&
+             !onGround // prevent sticking to walls when on ground
         ) {
-            if (newVx > 0) { // Moving right
-                newX = platform.x - p.width;
-            } else if (newVx < 0) { // Moving left
-                newX = platform.x + platform.width;
+            // This is a simplified horizontal collision, might need improvement
+            const playerBottom = p.y + p.height;
+            const platformTop = platform.y;
+            if(playerBottom > platformTop) { // only if not on top
+                if (newVx > 0) { // Moving right
+                    newX = platform.x - p.width;
+                } else if (newVx < 0) { // Moving left
+                    newX = platform.x + platform.width;
+                }
             }
         }
       });
@@ -582,45 +607,47 @@ export default function PankhusQuest() {
           </div>
         </div>
          {/* Mobile Controls */}
-         {isMobile && gameState === 'playing' && (
-            <div className="absolute bottom-4 left-4 right-4 flex justify-between items-center z-20 pointer-events-none md:hidden">
-                <div className="flex gap-2 pointer-events-auto">
-                    <Button 
-                        size="lg" 
-                        className="w-16 h-16 rounded-full opacity-80"
-                        onTouchStart={() => handleTouchStart('ArrowLeft')}
-                        onTouchEnd={() => handleTouchEnd('ArrowLeft')}
-                        onMouseDown={() => handleTouchStart('ArrowLeft')}
-                        onMouseUp={() => handleTouchEnd('ArrowLeft')}
-                    >
-                        <ArrowLeft className="w-8 h-8"/>
-                    </Button>
-                    <Button 
-                        size="lg" 
-                        className="w-16 h-16 rounded-full opacity-80"
-                        onTouchStart={() => handleTouchStart('ArrowRight')}
-                        onTouchEnd={() => handleTouchEnd('ArrowRight')}
-                        onMouseDown={() => handleTouchStart('ArrowRight')}
-                        onMouseUp={() => handleTouchEnd('ArrowRight')}
-                    >
-                        <ArrowRight className="w-8 h-8"/>
-                    </Button>
-                </div>
-                <div className="pointer-events-auto">
+        {isMobile && gameState === 'playing' && (
+            <div className="fixed bottom-0 left-0 right-0 p-4 flex justify-between items-center z-20 md:hidden">
+                <div className="flex gap-4">
                     <Button 
                         size="lg" 
                         className="w-20 h-20 rounded-full opacity-80"
-                        onTouchStart={() => handleTouchStart(' ')}
-                        onTouchEnd={() => handleTouchEnd(' ')}
-                        onMouseDown={() => handleTouchStart(' ')}
-                        onMouseUp={() => handleTouchEnd(' ')}
+                        onTouchStart={handleTouchStart('ArrowLeft')}
+                        onTouchEnd={handleTouchEnd('ArrowLeft')}
+                        onMouseDown={handleMouseDown('ArrowLeft')}
+                        onMouseUp={handleMouseUp('ArrowLeft')}
+                        onMouseLeave={handleMouseUp('ArrowLeft')}
                     >
-                        <ArrowUp className="w-10 h-10" />
+                        <ArrowLeft className="w-10 h-10"/>
+                    </Button>
+                    <Button 
+                        size="lg" 
+                        className="w-20 h-20 rounded-full opacity-80"
+                        onTouchStart={handleTouchStart('ArrowRight')}
+                        onTouchEnd={handleTouchEnd('ArrowRight')}
+                        onMouseDown={handleMouseDown('ArrowRight')}
+                        onMouseUp={handleMouseUp('ArrowRight')}
+                        onMouseLeave={handleMouseUp('ArrowRight')}
+                    >
+                        <ArrowRight className="w-10 h-10"/>
+                    </Button>
+                </div>
+                <div >
+                    <Button 
+                        size="lg" 
+                        className="w-24 h-24 rounded-full opacity-80"
+                        onTouchStart={handleTouchStart(' ')}
+                        onTouchEnd={handleTouchEnd(' ')}
+                        onMouseDown={handleMouseDown(' ')}
+                        onMouseUp={handleMouseUp(' ')}
+                        onMouseLeave={handleMouseUp(' ')}
+                    >
+                        <ArrowUp className="w-12 h-12" />
                     </Button>
                 </div>
             </div>
         )}
     </main>
   );
-
-    
+}
