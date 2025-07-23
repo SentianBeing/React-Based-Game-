@@ -8,6 +8,37 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Award, Coins, HeartCrack, ArrowLeft, ArrowRight, ArrowUp } from 'lucide-react';
 import Image from 'next/image';
 
+// Import images
+import PankhuIdleImage from './images/idle.png';
+// The following images are optional. If they exist, they will be used for animations.
+// If not, idle.png will be used as a fallback.
+let PankhuWalk1Image: any = PankhuIdleImage;
+let PankhuWalk2Image: any = PankhuIdleImage;
+let PankhuJumpImage: any = PankhuIdleImage;
+let PrinceImage: any = PankhuIdleImage;
+
+try {
+  PankhuWalk1Image = require('./images/walk1.png').default;
+} catch (e) {
+  // ignore
+}
+try {
+  PankhuWalk2Image = require('./images/walk2.png').default;
+} catch (e) {
+  // ignore
+}
+try {
+  PankhuJumpImage = require('./images/jump.png').default;
+} catch (e) {
+  // ignore
+}
+try {
+  PrinceImage = require('./images/prince.png').default;
+} catch (e) {
+  // ignore
+}
+
+
 // Game Constants
 const GAME_ASPECT_RATIO = 1;
 const BASE_GAME_WIDTH = 520;
@@ -89,19 +120,19 @@ const createInitialPlayer = (): Player => ({
 });
 
 const PankhuSpriteIdle = () => (
-    <Image src="https://placehold.co/32x48.png" alt="Pankhu Idle" layout="fill" objectFit="contain" data-ai-hint="pixelated princess idle" />
+    <Image src={PankhuIdleImage} alt="Pankhu Idle" layout="fill" objectFit="contain" unoptimized />
 );
 
 const PankhuSpriteWalk1 = () => (
-    <Image src="https://placehold.co/32x48.png" alt="Pankhu Walk 1" layout="fill" objectFit="contain" data-ai-hint="pixelated princess walk" />
+    <Image src={PankhuWalk1Image} alt="Pankhu Walk 1" layout="fill" objectFit="contain" unoptimized />
 );
 
 const PankhuSpriteWalk2 = () => (
-    <Image src="https://placehold.co/32x48.png" alt="Pankhu Walk 2" layout="fill" objectFit="contain" data-ai-hint="pixelated princess walk" />
+    <Image src={PankhuWalk2Image} alt="Pankhu Walk 2" layout="fill" objectFit="contain" unoptimized />
 );
 
 const PankhuSpriteJump = () => (
-    <Image src="https://placehold.co/32x48.png" alt="Pankhu Jump" layout="fill" objectFit="contain" data-ai-hint="pixelated princess jump" />
+    <Image src={PankhuJumpImage} alt="Pankhu Jump" layout="fill" objectFit="contain" unoptimized />
 );
 
 
@@ -117,7 +148,7 @@ const PlayerSprite = ({ isWalking, onGround, walkFrame }: { isWalking: boolean, 
 
 const PrinceSprite = () => {
     return (
-       <Image src="https://placehold.co/40x60.png" alt="Prince" layout="fill" objectFit="contain" data-ai-hint="pixelated prince" />
+       <Image src={PrinceImage} alt="Prince" layout="fill" objectFit="contain" unoptimized />
     );
 }
 
@@ -133,6 +164,8 @@ export default function PankhusQuest() {
   const [isMobile, setIsMobile] = useState(false);
   
   const gameContainerRef = useRef<HTMLDivElement>(null);
+  
+  const scale = gameDimensions.width / BASE_GAME_WIDTH;
 
   const keysPressed = useRef<Record<string, boolean>>({});
   const gameLoopRef = useRef<number>();
@@ -169,7 +202,7 @@ export default function PankhusQuest() {
         const parentWidth = parent.clientWidth;
         const parentHeight = parent.clientHeight;
         
-        let newWidth = parentWidth;
+        let newWidth = Math.min(parentWidth, BASE_GAME_WIDTH);
         let newHeight = newWidth / GAME_ASPECT_RATIO;
 
         if (newHeight > parentHeight) {
@@ -220,7 +253,7 @@ export default function PankhusQuest() {
 
   const handleMouseUp = (key: string) => (e: React.MouseEvent<HTMLButtonElement>) => {
      e.preventDefault();
-    keysPressed.current[key] = false;
+    keysPressed.current[e.key] = false;
   }
   
   const gameLoop = useCallback(() => {
@@ -355,13 +388,13 @@ export default function PankhusQuest() {
 
     // Update camera
     setCameraX(prev => {
-        const target = player.x - (BASE_GAME_WIDTH / 3);
+        const target = player.x - (gameDimensions.width / scale / 3);
         const newCamX = prev + (target - prev) * 0.1;
         return Math.max(0, newCamX);
     });
 
     gameLoopRef.current = requestAnimationFrame(gameLoop);
-  }, [gameState, player.x, enemies]);
+  }, [gameState, player.x, enemies, gameDimensions.width, scale]);
 
   useEffect(() => {
     if (gameState === 'playing') {
@@ -383,15 +416,13 @@ export default function PankhusQuest() {
     );
   };
 
-  const scale = gameDimensions.width / BASE_GAME_WIDTH;
-
   return (
-    <main className="flex flex-col items-center justify-center font-headline bg-background text-foreground min-h-screen h-full p-2 md:p-4 overflow-hidden">
-        <header className="shrink-0 w-full text-center">
-            <h1 className="text-3xl md:text-4xl font-bold my-2">Pankhu's Quest</h1>
+    <main className="flex flex-col items-center justify-center font-headline bg-background text-foreground h-screen p-0 overflow-hidden">
+        <header className="shrink-0 w-full text-center py-2 bg-background z-30">
+            <h1 className="text-3xl md:text-4xl font-bold">Pankhu's Quest</h1>
         </header>
         <div 
-          className="relative w-full flex-1 flex items-center justify-center"
+          className="relative w-full flex-1 flex items-center justify-center p-2 md:p-4"
         >
           <div 
             ref={gameContainerRef}
@@ -527,7 +558,7 @@ export default function PankhusQuest() {
         </div>
          {/* Mobile Controls */}
         {isMobile && gameState === 'playing' && (
-            <div className="fixed bottom-0 left-0 right-0 p-4 flex justify-between items-center z-20 md:hidden">
+            <div className="absolute bottom-0 left-0 right-0 p-4 flex justify-between items-center z-20 md:hidden">
                 <div className="flex gap-4">
                     <Button 
                         size="lg" 
@@ -570,5 +601,3 @@ export default function PankhusQuest() {
     </main>
   );
 }
-
-    
